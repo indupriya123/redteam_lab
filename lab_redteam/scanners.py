@@ -1,11 +1,22 @@
 import asyncio
 import hashlib
+import ipaddress
 import json
 import os
 import re
 import shutil
 import tempfile
 from pathlib import Path
+import xml.etree.ElementTree as ET
+
+NMAP_SKILL = {
+    "id": "nmap-tcp-discovery",
+    "purpose": "Discover open TCP ports inside immutable engagement scope and select bounded follow-up checks.",
+    "inputs": ["explicit approved IPs", "explicit approved TCP ports", "operator-approved installed Nmap version"],
+    "outputs": ["normalized open ports", "version and binary hash", "scope-validation evidence"],
+    "limits": {"maximum_tcp_scope_pairs": 128, "maximum_http_followup_requests": 32},
+    "excluded": ["NSE scripts", "OS/version probes", "UDP", "credential use", "arbitrary CLI arguments"],
+}
 
 TOOLS = [
     ("garak", "NVIDIA/garak", "LLM assessment", "garak"),
@@ -38,25 +49,29 @@ TOOLS = [
     ("nuclei", "projectdiscovery/nuclei", "Curated HTTP checks", "nuclei"),
     ("zap", "zaproxy/zaproxy", "Web/API assessment", "zap.sh"),
     ("codeql", "github/codeql", "Semantic code analysis", "codeql"),
+    ("nmap", "nmap/nmap", "Bounded TCP discovery", "nmap"),
 ]
 
 
-def registry(approved_version: str) -> list[dict]:
+def registry(approved_version: str, nmap_version: str = "") -> list[dict]:
     result = []
     for name, repository, domain, executable in TOOLS:
         installed = bool(executable and shutil.which(executable))
+        version = nmap_version if name == "nmap" else approved_version if name == "nuclei" else ""
+        adapter = {"nuclei": "curated_head_only", "nmap": "bounded_tcp_connect"}.get(name)
         result.append({
             "id": name, "repository": repository, "domain": domain,
             "cli_detected": installed, "cli_detection_is_not_full_install_validation": True,
-            "adapter": "curated_head_only" if name == "nuclei" else None,
+            "adapter": adapter,
             "status": (
-                "ready_for_version_validation" if installed and approved_version else
+                "ready_for_version_validation" if installed and version else
                 "requires_installation_and_version_approval"
-            ) if name == "nuclei" else "reference_only_adapter_pending",
-            "approved_version": approved_version if name == "nuclei" else None,
+            ) if adapter else "reference_only_adapter_pending",
+            "approved_version": version if adapter else None,
             "limitations": (
                 "One bundled HEAD-only template; no arbitrary templates or CLI arguments."
-                if name == "nuclei" else
+                if name == "nuclei" else "Only approved IP/port pairs; TCP connect discovery, no scripts or service probes."
+                if name == "nmap" else
                 "No executable adapter yet. An IP does not supply source, artifacts, identities, or benchmark fixtures."
             ),
         })
@@ -157,3 +172,110 @@ class NucleiAdapter:
                     "matches": matches, "raw_request_response_collected": False,
                     "result_status": "scanner_alert" if matches else "no_match_inconclusive",
                 }
+
+
+class NmapAdapter:
+    def __init__(self, approved_version: str):
+        self.approved_version = approved_version
+
+    @staticmethod
+    def parse_output(data: bytes, targets: list[str], ports: list[int], version: str) -> dict:
+        if b"<!ENTITY" in data or b" SYSTEM " in data or b" PUBLIC " in data:
+            raise ValueError("Nmap XML entity declarations are prohibited")
+        root = ET.fromstring(data)
+        if root.tag != "nmaprun" or root.get("scanner") != "nmap" or root.get("version") != version:
+            raise ValueError("Unexpected Nmap XML scanner/version")
+        finished = root.find("runstats/finished")
+        if finished is None or finished.get("exit") != "success":
+            raise ValueError("Nmap did not report a successful scan completion")
+        info = root.find("scaninfo")
+        if info is None or info.get("type") != "connect" or info.get("protocol") != "tcp":
+            raise ValueError("Nmap output is outside the TCP-connect profile")
+        reported = set()
+        for value in info.get("services", "").split(","):
+            parts = value.split("-")
+            if len(parts) == 1:
+                reported.add(int(parts[0]))
+            elif len(parts) == 2:
+                start, end = map(int, parts)
+                if not 0 <= end - start < 64:
+                    raise ValueError("Nmap reported an oversized port range")
+                reported.update(range(start, end + 1))
+            else:
+                raise ValueError("Invalid reported port range")
+        if reported != set(ports):
+            raise ValueError("Nmap reported scanning ports outside the approved list")
+        open_ports = []
+        observed_targets = set()
+        incomplete_targets = []
+        for host in root.findall("host"):
+            addresses = [item.get("addr") for item in host.findall("address") if item.get("addrtype") in {"ipv4", "ipv6"}]
+            if len(addresses) != 1:
+                raise ValueError("Nmap reported a host outside the approved target list")
+            target = str(ipaddress.ip_address(addresses[0]))
+            if target not in targets:
+                raise ValueError("Nmap reported a host outside the approved target list")
+            if target in observed_targets:
+                raise ValueError("Duplicate target in Nmap output")
+            observed_targets.add(target)
+            if host.get("timedout") == "true" or host.find("ports") is None:
+                incomplete_targets.append(target)
+            seen_ports = set()
+            for port in host.findall("ports/port"):
+                port_id = int(port.get("portid", "0"))
+                if port.get("protocol") != "tcp" or port_id not in ports:
+                    raise ValueError("Nmap result contains an unapproved port/protocol")
+                if port_id in seen_ports:
+                    raise ValueError("Nmap reported a duplicate port")
+                seen_ports.add(port_id)
+                state = port.find("state")
+                if state is not None and state.get("state") == "open":
+                    open_ports.append({"target": target, "port": port_id, "protocol": "tcp",
+                                       "state": "open", "application_protocol": "unverified"})
+        return {"open_ports": open_ports, "observed_targets": sorted(observed_targets),
+                "incomplete_targets": sorted(incomplete_targets),
+                "targets_not_reported": sorted(set(targets) - observed_targets)}
+
+    async def discover(self, targets: list[str], ports: list[int]) -> dict:
+        if not self.approved_version:
+            raise ValueError("Configure LAB_NMAP_VERSION before approving discovery")
+        executable = shutil.which("nmap")
+        if not executable:
+            raise ValueError("Nmap is not installed; TCP discovery was not performed")
+        if len(targets) * len(ports) > 128 or not targets or not ports:
+            raise ValueError("TCP discovery exceeds its 128-pair scope budget")
+        families = {ipaddress.ip_address(target).version for target in targets}
+        if len(families) != 1:
+            raise ValueError("Use separate Nmap engagements for IPv4 and IPv6 targets")
+        with tempfile.TemporaryDirectory(prefix="lab-nmap-") as name:
+            directory = Path(name)
+            environment = {"PATH": os.environ.get("PATH", "/usr/bin:/bin"), "HOME": name, "TMPDIR": name}
+            code, out, err = await bounded_command([executable, "--version"], directory, environment, timeout=5)
+            match = re.search(rb"Nmap version ([0-9]+\.[0-9]+[A-Za-z0-9._-]*)", out + err)
+            if code or not match or match.group(1).decode() != self.approved_version:
+                raise ValueError("Installed Nmap version does not match operator approval")
+            if self.approved_version.split(".")[0] != "7":
+                raise ValueError("No supported command profile for this Nmap major version")
+            arguments = [
+                executable, "--unprivileged", "-sT", "-Pn", "-n", "--disable-arp-ping",
+                "-p", ",".join(str(port) for port in sorted(ports)), "-oX", "-",
+                "--max-parallelism", "1", "--max-hostgroup", "1",
+                "--max-rate", "2", "--scan-delay", "500ms", "--max-retries", "0",
+                "--host-timeout", "45s", "--max-rtt-timeout", "2s",
+            ]
+            if families == {6}:
+                arguments.append("-6")
+            arguments.extend(targets)
+            code, out, _ = await bounded_command(arguments, directory, environment, timeout=180)
+            if code:
+                raise ValueError(f"Nmap exited with status {code}; discovery is incomplete")
+            parsed = self.parse_output(out, targets, ports, self.approved_version)
+            return {
+                "test": "Nmap TCP discovery", "tool": "nmap", "skill_id": NMAP_SKILL["id"],
+                "version": self.approved_version,
+                "binary_sha256": hashlib.sha256(Path(executable).read_bytes()).hexdigest(),
+                "xml_sha256": hashlib.sha256(out).hexdigest(),
+                "approved_targets": targets, "approved_ports": ports, **parsed,
+                "raw_xml_retained": False,
+                "limitations": "Connect-scan port state is not a vulnerability. No retries; missed ports are possible. Host discovery is assumed, not proved.",
+            }

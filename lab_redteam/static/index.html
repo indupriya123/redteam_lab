@@ -20,13 +20,16 @@
         <label>Authorization reference<input name="authorization_reference" required maxlength="300" placeholder="Lab owner approval or engagement ticket (no secrets)"></label>
         <label>Mode<select name="mode"><option value="demo">Synthetic vulnerable/fixed demonstrations</option><option value="network">Allowlisted HTTP/TLS lab assessment</option></select></label>
         <label>Explicit target IPs<input name="targets" placeholder="192.168.56.10, 192.168.56.11 (network mode only)"></label>
-        <label>HTTP service ports<input name="ports" value="80,443" required></label>
+        <label>Approved port list<input id="ports" name="ports" value="80,443" required></label>
+        <label class="check"><input id="nmap" name="nmap" type="checkbox">Discover open ports with approved Nmap TCP-connect scanning, then automatically run bounded HTTP/TLS follow-ups.</label>
+        <button id="common-ports" type="button" class="secondary">Use common lab discovery ports</button>
+        <label class="check"><input name="get_fallback" type="checkbox">Authorize one GET / headers-only fallback if HEAD returns 405 or 501. No response body is collected.</label>
         <label>Installed Ollama model (optional)<input name="model" placeholder="Enter an already installed local model"></label>
         <label class="check"><input id="nuclei" name="nuclei" type="checkbox">Corroborate HTTP headers using the version-approved curated Nuclei check.</label>
         <label class="check"><input name="authorized" type="checkbox" required>I confirm these targets are isolated and explicitly authorized.</label>
         <button type="submit">Create plan for approval</button>
       </form>
-      <p class="muted">Only HTTP HEAD requests to explicit IPs, at most 32 requests per run. No CIDR expansion, redirects, response bodies, credentials, or arbitrary commands. Model selection does not download models.</p>
+      <p class="muted">Nmap scans only the listed IP/port pairs (maximum 128); HTTP follow-ups remain capped at 32 requests. HEAD by default; root GET fallback only when authorized. No scripts, CIDR expansion, redirects, credentials, or arbitrary commands.</p>
       <p id="error" role="alert"></p>
     </section>
     <section>
@@ -36,7 +39,7 @@
     </section>
     <section class="wide">
       <h2>Tool adapter registry</h2>
-      <p class="muted">All 30 reference tools are registered. Installation and executable adapter coverage are separate.</p>
+      <p class="muted">All 30 reference tools plus the Nmap discovery skill are registered. Installation and executable adapter coverage are separate.</p>
       <div id="tools"></div>
     </section>
     <section class="wide">

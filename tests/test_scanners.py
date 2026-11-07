@@ -12,10 +12,10 @@ from test_system import lab_server, spec
 
 def test_tool_registry_separates_presence_from_execution():
     tools = registry("")
-    assert len(tools) == 30
-    assert len({item["id"] for item in tools}) == 30
-    assert sum(item["adapter"] is not None for item in tools) == 1
-    assert all(item["status"] == "reference_only_adapter_pending" for item in tools if item["id"] != "nuclei")
+    assert len(tools) == 31
+    assert len({item["id"] for item in tools}) == 31
+    assert sum(item["adapter"] is not None for item in tools) == 2
+    assert all(item["status"] == "reference_only_adapter_pending" for item in tools if item["id"] not in {"nuclei", "nmap"})
 
 
 def test_scanner_needs_version_approval_and_shares_request_budget(tmp_path):

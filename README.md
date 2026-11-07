@@ -66,6 +66,10 @@ not editable by the model or the dashboard.
 - Deterministic policy broker validates scope, authorization, request budget and approval.
 - Discovery specialist performs HTTP `HEAD /` on at most eight explicit IPs and
   four ports each. One request at a time per run, with globally paced request starts.
+- Optional **explicitly approved** `GET /` fallback runs only after HEAD 405/501.
+  It inspects response headers without reading/storing the body and does not
+  follow redirects. Authorization is part of the immutable engagement;
+  previously approved runs do not acquire new permissions.
 - HTTP hardening checks record missing response headers where applicable.
   These are low-severity observations, not confirmed exploits.
 - Simulation specialist compares vulnerable/fixed in-memory RAG tenant filtering,
@@ -87,6 +91,9 @@ Network mode does not submit prompts, collect response bodies, follow redirects,
 disable TLS verification, expand networks, use credentials, or execute commands.
 HTTPS is used on ports 443 and 8443; other selected ports are treated as HTTP.
 HEAD-only observations need further browser/GET verification where indicated.
+HEAD-only behavior remains the default. A fallback or scanner selection limits
+the engagement to 16 IP/port pairs. The GET fallback and HEAD-only Nuclei adapter
+are mutually exclusive for a given response, so both options still fit that budget.
 
 ## Local model
 
@@ -118,9 +125,9 @@ The tool-catalogue Word document is reference material, not executable adapters.
 
 ## Staged scanner integrations
 
-`/api/tools` and the dashboard register all 30 tools from the tool catalogue,
+`/api/tools` and the dashboard register all 30 tools from the tool catalogue plus Nmap,
 including installation detection, domain, adapter status, and limitations.
-**Only Nuclei currently has an executable external-tool adapter.** Registering
+**Nuclei and Nmap have bounded executable external-tool adapters.** Registering
 Semgrep, Gitleaks, Trivy, model scanners, or benchmark frameworks does not mean
 they ran. Source/artifact/cloud checks require additional authorized inputs;
 an IP address alone cannot establish their coverage.
@@ -148,11 +155,50 @@ the maximum IP/port pairs to 16 so planned target requests remain at most 32.
 Nuclei subprocesses are serialized, rate-limited to one request per second, and
 bounded by output limits and a 20-second timeout. They are killed on cancellation.
 
+## Nmap discovery skill
+
+On Kali, install Nmap if needed (`sudo apt install nmap`), check `nmap --version`,
+and set `LAB_NMAP_VERSION` to the exact operator-approved version printed there.
+Restart the backend, select **Nmap discovery**, and enter your approved IPs and
+port list. The common-port button is only a form convenience; it does not authorize
+or execute anything.
+
+Nmap performs an unprivileged TCP-connect scan (`-sT`), with DNS and separate
+host-discovery probes disabled. It accepts at most 64 explicitly listed ports
+and 128 total IP/port pairs. It does not scan all 65,535 ports, invoke NSE scripts,
+perform version/OS probes, test credentials, or accept arbitrary flags.
+IPv4 and IPv6 targets need separate engagements. Its configured scan rate is two
+probes per second, one outstanding probe, zero retries, 45-second per-host timeout,
+and 180-second process timeout. Kernel/network behavior and missed responses mean
+this is not an exhaustive reachability guarantee.
+
+The parser checks scanner/version, scan type, protocol, scanned port set, and
+each reported target/port against approved scope. Only exact `open` states become
+follow-up candidates; `open|filtered` does not. The policy broker validates those
+candidates again. Evidence includes open-port records and binary/XML hashes;
+raw XML, MAC addresses and hostnames are not retained.
+
+Confirmed open ports are automatically fed to the existing bounded HTTP/TLS
+adapters. Follow-up requests across all hosts share the 32-request budget;
+overflow ports are recorded as explicit gaps. Closed/unreported ports do not
+become security findings. Service protocol remains unverified until a valid
+application response is observed; non-HTTP services have no exploitation adapters.
+This is scoped discovery and validation, not automated compromise.
+
 Reports include authorization, scope, plan, findings, severity/confidence,
 synthetic versus observed status, evidence hashes, recommendations, retest criteria,
 coverage gaps and agent audit history. Reports never equate zero findings with a
 pass or partial evidence with compromise. Retests are new engagements requiring
 new approval; automatic remediation is not implemented.
+
+Workflow status and assessment verdict are separate. A completed run with no
+applicable successful HTTP/TLS checks is **inconclusive**, not a pass. Reports and
+the dashboard show HTTP responders versus endpoints with applicable hardening
+checks. Successful limited checks produce **limited_coverage**, never a blanket
+security pass. Verdicts are derived on read for historical runs too, without
+rewriting their evidence or audit hashes. Connection failures retain structured
+OS/TLS diagnostics where available; an ambiguous error is not attributed to a
+firewall or routing problem without evidence.
 
 SQLite snapshots persist under `data/`. Protect that directory with host access
 controls and set your own retention policy. Evidence/audit hashes are not

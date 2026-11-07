@@ -33,9 +33,17 @@ async function action(path, body) {
 
 function renderDetail(run) {
   const detail = document.getElementById("detail");
-  detail.replaceChildren(node("h3", run.engagement.title), node("p", `Status: ${run.status} | Mode: ${run.engagement.mode}`));
+  detail.replaceChildren(node("h3", run.engagement.title), node("p", `Workflow: ${run.status} | Assessment: ${run.assessment.verdict} | Mode: ${run.engagement.mode}`));
+  detail.append(node("p", `HTTP responders: ${run.assessment.http_responded_endpoints}/${run.assessment.requested_endpoints}; hardening assessed: ${run.assessment.hardening_assessed_endpoints}/${run.assessment.requested_endpoints}`));
   detail.append(node("p", `Objective: ${run.engagement.objective}`));
   detail.append(node("p", `Scope: ${run.engagement.targets.join(", ") || "In-memory synthetic fixtures"}; ports ${run.engagement.ports.join(", ")}`));
+  detail.append(node("p", `GET fallback: ${run.engagement.get_fallback ? "explicitly authorized after HEAD 405/501" : "not authorized"}`));
+  if ((run.engagement.scanners || []).includes("nmap")) {
+    detail.append(node("p", `TCP scope pairs: ${run.assessment.tcp_scope_pairs}; confirmed open: ${run.assessment.confirmed_open_tcp_ports}`));
+    const discovered = node("details");
+    discovered.append(node("summary", "Discovered open TCP ports (not vulnerabilities)"), node("pre", JSON.stringify(run.discovered_services || [], null, 2)));
+    detail.append(discovered);
+  }
   detail.append(node("p", "Plan: " + (run.plan.join("; ") || "Awaiting approval; only built-in checks are executable.")));
   if (run.status === "awaiting_approval") {
     const approve = node("button", "Approve this scope and start");
@@ -84,7 +92,7 @@ async function refresh() {
     list.replaceChildren();
     if (!runs.length) list.append(node("p", "No engagements yet.", "muted"));
     for (const run of runs) {
-      const button = node("button", `${run.engagement.title} - ${run.status}`, "secondary");
+      const button = node("button", `${run.engagement.title} - ${run.status} / ${run.assessment.verdict}`, "secondary");
       button.onclick = () => { selected = run.id; refresh(); };
       list.append(button);
     }
@@ -120,7 +128,9 @@ document.getElementById("engagement").onsubmit = async event => {
       authorization_reference: form.get("authorization_reference"),
       mode: form.get("mode"),
       targets: form.get("targets").split(",").map(value => value.trim()).filter(Boolean),
-      ports, model: form.get("model"), scanners: form.get("nuclei") === "on" ? ["nuclei"] : [],
+      ports, model: form.get("model"),
+      scanners: ["nuclei", "nmap"].filter(name => form.get(name) === "on"),
+      get_fallback: form.get("get_fallback") === "on",
       isolated_and_authorized: form.get("authorized") === "on"
     });
     selected = run.id;
@@ -129,10 +139,14 @@ document.getElementById("engagement").onsubmit = async event => {
 };
 document.getElementById("refresh").onclick = refresh;
 document.getElementById("search").oninput = renderCatalogue;
+document.getElementById("common-ports").onclick = () => {
+  document.getElementById("ports").value = "22,80,443,3000,5000,8000,8001,8080,8443";
+};
 (async () => {
   try {
     const [config, data, tools] = await Promise.all([api("/api/config"), api("/api/catalogue"), api("/api/tools")]);
     document.getElementById("nuclei").disabled = !config.nuclei_version_approved;
+    document.getElementById("nmap").disabled = !config.nmap_version_approved;
     const toolsContainer = document.getElementById("tools");
     for (const tool of tools) {
       const entry = node("details");

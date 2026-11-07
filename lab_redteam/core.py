@@ -1,9 +1,11 @@
 import asyncio
+import errno
 import hashlib
 import ipaddress
 import json
 import logging
 import sqlite3
+import ssl
 import time
 import uuid
 from datetime import datetime, timezone
@@ -13,7 +15,7 @@ from typing import Literal
 import httpx
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt
 
-from .scanners import NucleiAdapter
+from .scanners import NmapAdapter, NucleiAdapter
 
 LOGGER = logging.getLogger(__name__)
 PRIVATE_NETWORKS = tuple(
@@ -23,6 +25,7 @@ PRIVATE_NETWORKS = tuple(
 SAFE_HEADERS = {
     "content-type", "content-security-policy", "x-content-type-options",
     "strict-transport-security", "x-frame-options",
+    "allow",
 }
 
 
@@ -37,9 +40,10 @@ class Engagement(BaseModel):
     authorization_reference: str = Field(min_length=1, max_length=300)
     mode: Literal["demo", "network"] = "demo"
     targets: list[str] = Field(default_factory=list, max_length=8)
-    ports: list[StrictInt] = Field(default_factory=lambda: [80, 443], min_length=1, max_length=4)
+    ports: list[StrictInt] = Field(default_factory=lambda: [80, 443], min_length=1, max_length=64)
     model: str = Field(default="", max_length=120, pattern=r"^[a-zA-Z0-9._:/-]*$")
-    scanners: list[Literal["nuclei"]] = Field(default_factory=list, max_length=1)
+    scanners: list[Literal["nuclei", "nmap"]] = Field(default_factory=list, max_length=2)
+    get_fallback: StrictBool = False
     isolated_and_authorized: StrictBool
 
 
@@ -74,6 +78,10 @@ class Policy:
             raise ValueError("Ports must be integers between 1 and 65535")
         if len(set(engagement.ports)) != len(engagement.ports):
             raise ValueError("Duplicate ports are not allowed")
+        if len(set(engagement.scanners)) != len(engagement.scanners):
+            raise ValueError("Duplicate scanner selections are not allowed")
+        if "nmap" not in engagement.scanners and len(engagement.ports) > 4:
+            raise ValueError("Direct HTTP mode accepts at most four ports; use approved Nmap discovery for a larger list")
         if engagement.mode == "network":
             if not self.networks:
                 raise ValueError("Network execution is disabled: configure LAB_ALLOWED_CIDRS")
@@ -82,13 +90,22 @@ class Policy:
             targets = [self.target(value) for value in engagement.targets]
             if len(set(targets)) != len(targets):
                 raise ValueError("Duplicate targets are not allowed")
-            if len(targets) * len(engagement.ports) * (1 + len(engagement.scanners)) > 32:
-                raise ValueError("Selected checks exceed the 32-request engagement budget")
+            if "nmap" in engagement.scanners:
+                if len(targets) * len(engagement.ports) > 128:
+                    raise ValueError("Nmap scope exceeds 128 approved IP/port pairs")
+                if len({ipaddress.ip_address(target).version for target in targets}) != 1:
+                    raise ValueError("Separate IPv4 and IPv6 Nmap engagements are required")
+            else:
+                extra_request = int(bool(engagement.scanners or engagement.get_fallback))
+                if len(targets) * len(engagement.ports) * (1 + extra_request) > 32:
+                    raise ValueError("Selected checks exceed the 32-request engagement budget")
             engagement = engagement.model_copy(update={"targets": targets})
         elif engagement.targets:
             raise ValueError("Synthetic demonstrations do not accept network targets")
         if engagement.scanners and engagement.mode != "network":
             raise ValueError("The curated HTTP scanner requires network mode")
+        if engagement.get_fallback and engagement.mode != "network":
+            raise ValueError("GET fallback requires network mode and separate engagement approval")
         return engagement
 
 
@@ -159,8 +176,85 @@ def finding(run: dict, title: str, asset: str, severity: str, observation: str,
     })
 
 
+def target_url(target: str, port: int) -> str:
+    host = f"[{target}]" if ":" in target else target
+    scheme = "https" if port in (443, 8443) else "http"
+    return f"{scheme}://{host}:{port}/"
+
+
+def connection_diagnostic(error: Exception) -> dict:
+    current: BaseException | None = error
+    seen = set()
+    while current is not None and id(current) not in seen:
+        seen.add(id(current))
+        if isinstance(current, ssl.SSLCertVerificationError):
+            return {"category": "tls_certificate_verification_failed",
+                    "detail": "Certificate verification failed; no insecure retry was performed."}
+        if isinstance(current, OSError) and current.errno is not None:
+            categories = {
+                errno.ECONNREFUSED: ("connection_refused", "Connection was refused; this does not establish why the service is unavailable."),
+                errno.ENETUNREACH: ("network_unreachable", "The operating system reported an unreachable network."),
+                errno.EHOSTUNREACH: ("host_unreachable", "The operating system reported an unreachable host."),
+                errno.ETIMEDOUT: ("connection_timeout", "The operating system reported a connection timeout."),
+            }
+            if current.errno in categories:
+                category, detail = categories[current.errno]
+                return {"category": category, "detail": detail, "errno": current.errno}
+        current = current.__cause__ or current.__context__
+    if isinstance(error, (httpx.TimeoutException, TimeoutError)):
+        return {"category": "request_timeout", "detail": "The request exceeded its time limit; filtering is not proven."}
+    return {"category": "connection_or_protocol_error",
+            "detail": "The available exception does not establish routing, filtering, or service availability as the cause."}
+
+
+def assessment_summary(run: dict) -> dict:
+    spec = run["engagement"]
+    expected = {target_url(target, port) for target in spec["targets"] for port in spec["ports"]}
+    tcp_scope_pairs = len(expected) if "nmap" in spec.get("scanners", []) else 0
+    if "nmap" in spec.get("scanners", []):
+        expected = {target_url(item["target"], item["port"]) for item in run.get("discovered_services", [])}
+    observations = [
+        item for item in run["evidence"]
+        if item.get("test") in {"HTTP HEAD", "HTTP GET", "HTTP discovery"}
+    ]
+    responded = {item["url"] for item in observations if isinstance(item.get("status"), int)} & expected
+    assessed = {
+        item["url"] for item in observations
+        if isinstance(item.get("status"), int) and 200 <= item["status"] < 300
+        and ("text/html" in item.get("headers", {}).get("content-type", "").lower()
+             or item["url"].startswith("https://"))
+    } & expected
+    status = run["status"]
+    if status == "awaiting_approval":
+        verdict = "not_started"
+    elif status in {"queued", "running"}:
+        verdict = "in_progress"
+    elif status in {"failed", "cancelled", "interrupted"}:
+        verdict = "incomplete"
+    elif spec["mode"] == "demo":
+        verdict = "simulation_only"
+    elif not assessed:
+        verdict = "inconclusive"
+    else:
+        verdict = "limited_coverage"
+    return {
+        "verdict": verdict, "requested_endpoints": len(expected),
+        "http_responded_endpoints": len(responded), "hardening_assessed_endpoints": len(assessed),
+        "unassessed_endpoints": sorted(expected - assessed),
+        "http_request_observations": len(observations),
+        "tcp_scope_pairs": tcp_scope_pairs,
+        "confirmed_open_tcp_ports": len(run.get("discovered_services", [])),
+        "security_pass": False,
+        "explanation": "Workflow completion does not establish assessment coverage or target security.",
+    }
+
+
+def run_view(run: dict) -> dict:
+    return {**run, "assessment": assessment_summary(run)}
+
+
 class Orchestrator:
-    def __init__(self, store: Store, policy: Policy, nuclei_version: str = ""):
+    def __init__(self, store: Store, policy: Policy, nuclei_version: str = "", nmap_version: str = ""):
         self.store = store
         self.policy = policy
         self.tasks: dict[str, asyncio.Task] = {}
@@ -170,11 +264,14 @@ class Orchestrator:
         self.network_slot = asyncio.Lock()
         self.last_request = 0.0
         self.nuclei = NucleiAdapter(nuclei_version)
+        self.nmap = NmapAdapter(nmap_version)
 
     def create(self, engagement: Engagement) -> dict:
         engagement = self.policy.validate(engagement)
-        if engagement.scanners and not self.nuclei.approved_version:
+        if "nuclei" in engagement.scanners and not self.nuclei.approved_version:
             raise ValueError("Nuclei execution requires operator version approval via LAB_NUCLEI_VERSION")
+        if "nmap" in engagement.scanners and not self.nmap.approved_version:
+            raise ValueError("Nmap execution requires operator version approval via LAB_NMAP_VERSION")
         run = {
             "id": str(uuid.uuid4()), "created_at": now(), "status": "awaiting_approval",
             "engagement": engagement.model_dump(), "events": [], "evidence": [], "findings": [],
@@ -246,12 +343,18 @@ class Orchestrator:
                 if spec.mode == "demo" else
                 ["Explicit-IP HTTP HEAD discovery", "Observed HTTP/TLS hardening", "Coverage gap review"]
             )
-            if spec.scanners:
+            if "nuclei" in spec.scanners:
                 run["plan"].append("Curated Nuclei HEAD template with baseline evidence correlation")
+            if "nmap" in spec.scanners:
+                run["plan"].insert(0, "Nmap TCP-connect discovery on the approved IP/port list")
+            if spec.get_fallback:
+                run["plan"].append("Approved GET / headers-only fallback after HEAD 405 or 501")
             event(run, "planner", "Built-in adapters selected; user objective is context, not executable instructions")
             self.store.save(run)
             if spec.mode == "demo":
                 self.demonstrate(run)
+            elif "nmap" in spec.scanners:
+                await self.discover_with_nmap(run, spec)
             else:
                 await self.discover(run, spec)
             event(run, "evidence_reviewer", "Checked evidence references; target compromise is not inferred")
@@ -284,6 +387,52 @@ class Orchestrator:
         finally:
             run["finished_at"] = now()
             self.store.save(run)
+
+    async def discover_with_nmap(self, run: dict, spec: Engagement) -> None:
+        for target in spec.targets:
+            self.policy.target(target)
+        event(run, "nmap_specialist", "Version-approved TCP-connect discovery; no NSE scripts or service probes")
+        self.store.save(run)
+        async with self.network_slot:
+            await self.pace_request()
+            try:
+                result = await self.nmap.discover(spec.targets, spec.ports)
+            finally:
+                self.last_request = time.monotonic()
+        seen = set()
+        for service in result["open_ports"]:
+            pair = (service["target"], service["port"])
+            if (service["target"] not in spec.targets or service["port"] not in spec.ports
+                    or service.get("protocol") != "tcp" or service.get("state") != "open" or pair in seen):
+                raise ValueError("Discovered service is outside approved scope or is not a unique confirmed-open TCP port")
+            seen.add(pair)
+        item = evidence(run, result)
+        run["discovered_services"] = result["open_ports"]
+        run["gaps"].append(result["limitations"])
+        for target in result["targets_not_reported"]:
+            run["gaps"].append(f"{target}: Nmap did not return host results; timeout/availability remains unverified ({item}).")
+        for target in result.get("incomplete_targets", []):
+            run["gaps"].append(f"{target}: Nmap host record lacks complete port results; timeout/availability remains unverified ({item}).")
+        if not result["open_ports"]:
+            run["gaps"].append("No open TCP ports were confirmed in the approved list; other ports and host security remain unassessed.")
+        budget_per_endpoint = 1 + int(bool("nuclei" in spec.scanners or spec.get_fallback))
+        by_target = {target: [service for service in result["open_ports"] if service["target"] == target]
+                     for target in spec.targets}
+        ordered = [
+            by_target[target][index]
+            for index in range(max((len(services) for services in by_target.values()), default=0))
+            for target in spec.targets if index < len(by_target[target])
+        ]
+        selected = ordered[:32 // budget_per_endpoint]
+        run["selected_services"] = selected
+        for service in ordered[len(selected):]:
+            run["gaps"].append(f"{service['target']}:{service['port']}: open TCP port, but HTTP follow-up budget was exhausted ({item}).")
+        event(run, "planner", f"Validated {len(result['open_ports'])} open ports; selected {len(selected)} bounded HTTP/TLS follow-ups")
+        self.store.save(run)
+        for target in spec.targets:
+            ports = [service["port"] for service in selected if service["target"] == target]
+            if ports:
+                await self.discover(run, spec.model_copy(update={"targets": [target], "ports": ports}))
 
     async def assess_scanner(self, run: dict, url: str) -> None:
         event(run, "scanner_specialist", f"Approved curated HEAD-only Nuclei check: {url}")
@@ -348,46 +497,62 @@ class Orchestrator:
         run["gaps"].append("Demonstrations use deterministic fixtures, not attacks against an LLM or network service.")
         self.store.save(run)
 
+    async def request_headers(self, client: httpx.AsyncClient, method: Literal["HEAD", "GET"], url: str) -> tuple[int, dict]:
+        async with self.network_slot:
+            await self.pace_request()
+            try:
+                async with asyncio.timeout(5):
+                    async with client.stream(method, url, headers={"User-Agent": "LabRedTeam/0.1 authorized-read-only"}) as response:
+                        headers = {
+                            key: value[:512] for key, value in response.headers.items()
+                            if key.lower() in SAFE_HEADERS
+                        }
+                        return response.status_code, headers
+            finally:
+                self.last_request = time.monotonic()
+
     async def discover(self, run: dict, spec: Engagement) -> None:
-        count = 0
+        count = run.get("http_requests_started", 0)
         async with httpx.AsyncClient(
             timeout=httpx.Timeout(3), follow_redirects=False, trust_env=False, verify=True,
             limits=httpx.Limits(max_connections=1),
         ) as client:
             for target in spec.targets:
                 for port in spec.ports:
-                    self.policy.target(target)
-                    if count >= 32:
-                        raise ValueError("Hard request budget reached")
-                    count += 1
-                    host = f"[{target}]" if ":" in target else target
-                    scheme = "https" if port in (443, 8443) else "http"
-                    url = f"{scheme}://{host}:{port}/"
-                    event(run, "policy_broker", f"Allowed HEAD request {count}/32: {url}")
-                    try:
-                        async with self.network_slot:
-                            await self.pace_request()
-                            try:
-                                async with asyncio.timeout(5):
-                                    async with client.stream("HEAD", url, headers={"User-Agent": "LabRedTeam/0.1 authorized-read-only"}) as response:
-                                        headers = {
-                                            key: value[:512] for key, value in response.headers.items()
-                                            if key.lower() in SAFE_HEADERS
-                                        }
-                                        status = response.status_code
-                            finally:
-                                self.last_request = time.monotonic()
-                    except (httpx.HTTPError, TimeoutError) as exc:
-                        item = evidence(run, {"test": "HTTP discovery", "url": url,
-                                              "outcome": "unreachable_or_unverified",
-                                              "error_type": type(exc).__name__})
-                        run["gaps"].append(f"{url}: HTTP/TLS assessment could not complete ({item}); not a pass.")
-                        event(run, "discovery_specialist", f"{url}: {type(exc).__name__}; no insecure TLS fallback")
+                    url = target_url(target, port)
+                    observation = None
+                    methods: list[Literal["HEAD", "GET"]] = ["HEAD", "GET"] if spec.get_fallback else ["HEAD"]
+                    for method in methods:
+                        self.policy.target(target)
+                        if count >= 32:
+                            raise ValueError("Hard request budget reached")
+                        count += 1
+                        run["http_requests_started"] = count
+                        event(run, "policy_broker", f"Allowed {method} request {count}/32: {url}")
+                        try:
+                            status, headers = await self.request_headers(client, method, url)
+                        except (httpx.HTTPError, TimeoutError) as exc:
+                            diagnostic = connection_diagnostic(exc)
+                            item = evidence(run, {"test": "HTTP discovery", "method": method, "url": url,
+                                                  "outcome": "unreachable_or_unverified",
+                                                  "error_type": type(exc).__name__, "diagnostic": diagnostic})
+                            run["gaps"].append(f"{url}: {method} assessment could not complete ({item}): {diagnostic['detail']}")
+                            event(run, "discovery_specialist", f"{url}: {method} {diagnostic['category']}; no alternate-port or insecure TLS retry")
+                            observation = None
+                            self.store.save(run)
+                            break
+                        item = evidence(run, {"test": f"HTTP {method}", "method": method, "url": url, "status": status,
+                                              "headers": headers, "body_collected": False})
+                        observation = (method, status, headers, item)
+                        event(run, "discovery_specialist", f"{url}: {method} HTTP {status}; redirects not followed; body not collected")
                         self.store.save(run)
+                        if method != "HEAD" or status not in {405, 501}:
+                            break
+                        if not spec.get_fallback:
+                            run["gaps"].append(f"{url}: HEAD rejected ({status}); GET fallback was not authorized.")
+                    if observation is None:
                         continue
-                    item = evidence(run, {"test": "HTTP HEAD", "url": url, "status": status,
-                                          "headers": headers, "body_collected": False})
-                    event(run, "discovery_specialist", f"{url}: HTTP {status}; redirects not followed")
+                    method, status, headers, item = observation
                     if 200 <= status < 300:
                         checks = []
                         if "text/html" in headers.get("content-type", "").lower():
@@ -395,24 +560,25 @@ class Orchestrator:
                                 ("x-content-type-options", "Use X-Content-Type-Options: nosniff."),
                                 ("content-security-policy", "Define a route-appropriate Content-Security-Policy; test it before enforcement."),
                             ]
-                        if scheme == "https":
+                        if url.startswith("https://"):
                             checks.append(("strict-transport-security", "Enable an appropriate HSTS policy after validating HTTPS deployment."))
                         for header, fix in checks:
                             if header not in headers:
                                 finding(run, f"Missing {header} on observed response", url, "LOW",
-                                        f"A successful HEAD response did not include {header}.",
+                                        f"A successful {method} response did not include {header}.",
                                         item, fix, "Repeat HEAD and browser/GET validation on relevant routes; confirm the intended policy.")
                         if not checks:
                             run["gaps"].append(f"{url}: no applicable HTML/HTTPS checks; response does not establish security.")
                     else:
                         run["gaps"].append(f"{url}: status {status}; hardening checks skipped. No redirects or authentication attempts.")
                     self.store.save(run)
-                    if "nuclei" in spec.scanners and scheme == "http" and status == 200:
+                    if "nuclei" in spec.scanners and url.startswith("http://") and status == 200 and method == "HEAD":
                         self.policy.target(target)
                         count += 1
+                        run["http_requests_started"] = count
                         await self.assess_scanner(run, url)
                     elif "nuclei" in spec.scanners:
-                        run["gaps"].append(f"{url}: Nuclei skipped; curated adapter requires a successful plain HTTP baseline.")
+                        run["gaps"].append(f"{url}: Nuclei skipped; curated template requires a successful plain HTTP HEAD baseline.")
                         self.store.save(run)
 
     async def review_with_model(self, run: dict, model: str) -> None:
@@ -468,6 +634,7 @@ class Orchestrator:
 
 def markdown_report(run: dict) -> str:
     spec = run["engagement"]
+    assessment = assessment_summary(run)
     lines = [
         "# Lab assessment report", "", f"Run: {run['id']}", f"Status: {run['status']}",
         f"Created: {run['created_at']}", f"Title: {spec['title']}",
@@ -476,7 +643,11 @@ def markdown_report(run: dict) -> str:
         f"Mode: {spec['mode']}", f"Targets: {', '.join(spec['targets']) or 'in-memory fixtures only'}",
         f"Ports: {spec['ports']}", "", "## Executive summary",
         f"{len(run['findings'])} findings/control observations; {len(run['gaps'])} recorded coverage limitations.",
+        f"Assessment verdict: {assessment['verdict']}",
+        f"HTTP responders: {assessment['http_responded_endpoints']}/{assessment['requested_endpoints']}; "
+        f"hardening assessed: {assessment['hardening_assessed_endpoints']}/{assessment['requested_endpoints']}.",
         "No target compromise was attempted or demonstrated. No findings is not a security pass.",
+        "", "## Assessment coverage", "```json", json.dumps(assessment, indent=2), "```",
         "", "## Approved plan", *[f"- {step}" for step in run["plan"]], "", "## Findings",
     ]
     for item in run["findings"]:

@@ -10,8 +10,8 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from .catalogue import load_catalogue
-from .core import Approval, Engagement, Orchestrator, Policy, Store, markdown_report
-from .scanners import registry
+from .core import Approval, Engagement, Orchestrator, Policy, Store, markdown_report, run_view
+from .scanners import NMAP_SKILL, registry
 
 ROOT = Path(__file__).resolve().parent.parent
 STATIC = Path(__file__).resolve().parent / "static"
@@ -22,9 +22,11 @@ def create_app(data_dir: Path | None = None, cidrs: str | None = None) -> FastAP
     directory = data_dir if data_dir is not None else Path(os.environ.get("LAB_DATA_DIR", ROOT / "data"))
     store = Store(directory / "runs.sqlite3")
     nuclei_version = os.environ.get("LAB_NUCLEI_VERSION", "")
-    orchestrator = Orchestrator(store, policy, nuclei_version)
+    nmap_version = os.environ.get("LAB_NMAP_VERSION", "")
+    orchestrator = Orchestrator(store, policy, nuclei_version, nmap_version)
     token = secrets.token_urlsafe(32)
     catalogue = load_catalogue(ROOT / "references" / "AI-Agent")
+    catalogue["execution_skills"] = [NMAP_SKILL]
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -84,7 +86,7 @@ def create_app(data_dir: Path | None = None, cidrs: str | None = None) -> FastAP
 
     @app.get("/api/tools")
     async def tools():
-        return registry(nuclei_version)
+        return registry(nuclei_version, nmap_version)
 
     @app.get("/api/config")
     async def config():
@@ -92,36 +94,38 @@ def create_app(data_dir: Path | None = None, cidrs: str | None = None) -> FastAP
                 "network_enabled": bool(policy.networks), "request_budget": 32,
                 "concurrent_engagements": 2, "queue_capacity": 32, "concurrent_model_calls": 1,
                 "nuclei_version_approved": bool(nuclei_version),
+                "nmap_version_approved": bool(nmap_version),
+                "tcp_scope_budget": 128,
                 "agents": ["planner", "policy_broker", "discovery_specialist",
                            "simulation_specialist", "evidence_reviewer", "local_model_reviewer", "reporter"]}
 
     @app.get("/api/runs")
     async def list_runs():
-        return store.list()
+        return [run_view(run) for run in store.list()]
 
     @app.post("/api/runs", status_code=201)
     async def create_run(spec: Engagement):
-        return orchestrator.create(spec)
+        return run_view(orchestrator.create(spec))
 
     @app.get("/api/runs/{run_id}")
     async def get_run(run_id: str):
-        return store.get(run_id)
+        return run_view(store.get(run_id))
 
     @app.post("/api/runs/{run_id}/approve")
     async def approve_run(run_id: str, approval: Approval):
         if not approval.approve:
             raise HTTPException(400, "Explicit approval is required")
-        return orchestrator.start(run_id)
+        return run_view(orchestrator.start(run_id))
 
     @app.post("/api/runs/{run_id}/stop")
     async def stop_run(run_id: str):
-        return await orchestrator.stop(run_id)
+        return run_view(await orchestrator.stop(run_id))
 
     @app.get("/api/runs/{run_id}/report")
     async def report(run_id: str, format: str = "markdown"):
         run = store.get(run_id)
         if format == "json":
-            return JSONResponse(run, headers={"Content-Disposition": 'attachment; filename="lab-report.json"'})
+            return JSONResponse(run_view(run), headers={"Content-Disposition": 'attachment; filename="lab-report.json"'})
         if format != "markdown":
             raise HTTPException(400, "Supported formats: markdown, json")
         return PlainTextResponse(markdown_report(run), headers={"Content-Disposition": 'attachment; filename="lab-report.md"'})
