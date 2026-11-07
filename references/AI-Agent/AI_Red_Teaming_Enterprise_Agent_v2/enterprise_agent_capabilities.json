@@ -1,0 +1,127 @@
+[
+  {
+    "capability": "Enterprise attack-surface inventory",
+    "description": "Build a continuously refreshed inventory of applications, APIs, AI endpoints, agents, MCP servers, model endpoints, vector stores, cloud assets and identity boundaries.",
+    "outputs": "Asset graph; owner; environment; exposure; evidence timestamp; confidence; source."
+  },
+  {
+    "capability": "AI system fingerprinting",
+    "description": "Identify model families, serving layers, orchestration frameworks, retrieval components, tool interfaces, safety layers and observable version clues.",
+    "outputs": "Fingerprint hypotheses with confidence and non-invasive evidence; never present inference as fact."
+  },
+  {
+    "capability": "API contract and schema analysis",
+    "description": "Parse OpenAPI, GraphQL schemas, JSON schemas and observed request/response shapes to find auth gaps, overbroad operations, mass assignment and inconsistent validation.",
+    "outputs": "Endpoint-to-role matrix; schema diff; authorization test cases; reproducible evidence."
+  },
+  {
+    "capability": "Identity and authorization graph",
+    "description": "Model users, service accounts, roles, tokens, delegated identities, agent identities, resources and trust relationships as a graph.",
+    "outputs": "Reachability paths; excessive privilege; confused-deputy candidates; owner and remediation."
+  },
+  {
+    "capability": "Business-logic testing",
+    "description": "Derive workflows, state transitions, invariants, tenant boundaries, approval steps and abuse cases from application behavior.",
+    "outputs": "Workflow model; invariant violations; test traces; business impact."
+  },
+  {
+    "capability": "Tenant isolation validation",
+    "description": "Test cross-tenant object access, retrieval filtering, cache separation, memory separation and tool/data boundary enforcement.",
+    "outputs": "Tenant matrix; negative tests; evidence of isolation or leakage."
+  },
+  {
+    "capability": "Secrets exposure assessment",
+    "description": "Detect exposed credentials in repositories, logs, prompts, traces, configs, images and model artifacts; validate exposure without using secrets beyond approved proof.",
+    "outputs": "Secret type, location, exposure window, affected identity, rotation recommendation."
+  },
+  {
+    "capability": "Cloud control-plane assessment",
+    "description": "Assess IAM policies, workload identity, metadata access, storage exposure, network paths, serverless functions and managed AI services.",
+    "outputs": "Policy findings; trust graph; cloud attack path; least-privilege fix."
+  },
+  {
+    "capability": "Kubernetes and container assessment",
+    "description": "Review RBAC, service accounts, admission policies, secrets, network policies, pod security, image provenance and workload configuration.",
+    "outputs": "Cluster posture; workload-to-permission map; safe proof; hardening diff."
+  },
+  {
+    "capability": "CI/CD and software supply-chain assessment",
+    "description": "Review build permissions, workflow triggers, artifact provenance, dependency pinning, secret handling, model download paths and release approvals.",
+    "outputs": "Pipeline trust map; provenance gaps; dependency and artifact findings."
+  },
+  {
+    "capability": "RAG corpus governance",
+    "description": "Assess ingestion authorization, document provenance, chunk metadata, ACL propagation, deletion, freshness, source attribution and index lifecycle.",
+    "outputs": "Corpus lineage; ACL test matrix; poisoning indicators; stale/deleted-content tests."
+  },
+  {
+    "capability": "Vector database security",
+    "description": "Review network exposure, authentication, namespace/collection isolation, metadata filters, backups, encryption, index access and query logging.",
+    "outputs": "Vector-store configuration findings; tenant-boundary tests; access evidence."
+  },
+  {
+    "capability": "Agent memory and state security",
+    "description": "Assess short-term state, long-term memory, checkpoint stores, replay, cross-session boundaries, retention and data minimization.",
+    "outputs": "State-flow diagram; session-isolation tests; retention findings."
+  },
+  {
+    "capability": "Tool execution security",
+    "description": "Assess tool allowlists, argument validation, path constraints, network egress, process isolation, timeouts, output handling and approval gates.",
+    "outputs": "Tool capability inventory; schema fuzz results; sandbox evidence; policy gaps."
+  },
+  {
+    "capability": "MCP server assessment",
+    "description": "Assess server discovery, transport, authentication, tool/resource exposure, schema trust, permission scope, origin and server lifecycle.",
+    "outputs": "MCP inventory; tool permission matrix; protocol traces; remediation."
+  },
+  {
+    "capability": "A2A trust and delegation assessment",
+    "description": "Assess agent discovery, Agent Cards, identity proof, delegation chains, task authorization, message provenance, replay and trust policy.",
+    "outputs": "Agent trust graph; delegation chain; spoofing/replay test results."
+  },
+  {
+    "capability": "Model endpoint and inference security",
+    "description": "Assess authentication, rate limits, quotas, request size, context handling, streaming, error disclosure, model routing and tenant controls.",
+    "outputs": "Endpoint controls matrix; abuse-resistance evidence; operational limits."
+  },
+  {
+    "capability": "Observability and detection engineering",
+    "description": "Map test actions to logs, traces, alerts and incident workflows; identify blind spots and build detection logic.",
+    "outputs": "Detection coverage matrix; sample events; Sigma-style logic where appropriate; runbook."
+  },
+  {
+    "capability": "Exploitability and impact validation",
+    "description": "Use bounded proofs to establish reachability, confidentiality, integrity or availability impact without unnecessary data access or service disruption.",
+    "outputs": "Minimal proof; impact chain; confidence; rollback/stop conditions."
+  },
+  {
+    "capability": "Remediation verification and regression",
+    "description": "Convert findings into retests, unit/integration tests, policy-as-code checks and continuous controls.",
+    "outputs": "Retest record; regression test; fixed/not-fixed/partially-fixed status."
+  },
+  {
+    "capability": "Attack-path and risk prioritization",
+    "description": "Correlate exposure, exploit preconditions, identity reachability, data sensitivity, business criticality and control coverage.",
+    "outputs": "Ranked paths; explainable score factors; uncertainty; owner."
+  },
+  {
+    "capability": "Evidence and reporting automation",
+    "description": "Create reproducible evidence packages, timelines, executive summaries, technical findings and remediation tickets.",
+    "outputs": "Evidence bundle; finding schema; report; ticket payload; audit trail."
+  },
+  {
+    "capability": "Purple-team exercise orchestration",
+    "description": "Translate validated attack paths into detection exercises, coordinate defenders, replay safe test events and measure response.",
+    "outputs": "Exercise plan; telemetry; detection and response metrics; lessons learned."
+  },
+  {
+    "capability": "Continuous control validation",
+    "description": "Schedule scoped checks for drift in permissions, endpoints, model configurations, tool catalogs, RAG ACLs and supply-chain controls.",
+    "outputs": "Baseline; drift event; owner; severity; trend."
+  },
+  {
+    "capability": "AI red-team benchmark harness",
+    "description": "Run repeatable test suites against models, agents, RAG apps and tool chains using versioned prompts, fixtures, expected outcomes and scoring.",
+    "outputs": "Benchmark report; reproducible run IDs; regression deltas; model/version comparisons."
+  }
+]

@@ -1,0 +1,66 @@
+{
+  "title": "AI Red Teaming Agent Training Pack",
+  "version": "2.0",
+  "created": "2026-11-07",
+  "source_basis": "11 user-provided OffSec AI-300 / OSAI+ module documents and the previously prepared compendium",
+  "modules": [
+    {
+      "module_id": "M01",
+      "title": "Introduction to Red Teaming AI Systems",
+      "coverage": "AI security landscape, AI-specific risks, business impact, responsible testing, frameworks and engagement lifecycle."
+    },
+    {
+      "module_id": "M02",
+      "title": "Reconnaissance for AI Targets",
+      "coverage": "AI architecture mapping, passive and active reconnaissance, HTTP fingerprinting, repository mining, service discovery, model fingerprinting, RAG discovery, telemetry and detection analysis."
+    },
+    {
+      "module_id": "M03",
+      "title": "Attacking AI Agents",
+      "coverage": "Single-agent architecture, direct and indirect prompt injection, system prompt extraction, goal hijacking, document/web/code injection, memory poisoning and cross-session leakage."
+    },
+    {
+      "module_id": "M04",
+      "title": "Attacking Multi-Agent Systems and A2A",
+      "coverage": "Coordination patterns, trust boundaries, A2A discovery, Agent Cards, OpenAPI, workflow observation, workflow integrity, output manipulation, rogue agent registration, agent-card spoofing and data poisoning."
+    },
+    {
+      "module_id": "M05",
+      "title": "Exploiting RAG Pipelines",
+      "coverage": "RAG ingestion/retrieval, knowledge-base leakage, ingestion poisoning, embedding collision, retrieval hijacking, encodings/substitution, document blending and slow-drip poisoning."
+    },
+    {
+      "module_id": "M06",
+      "title": "Attacking Embeddings",
+      "coverage": "Vector exposure, embedding model identification, chunk triage, zero-shot inversion, template-based inversion, beam search, membership inference, ALGEN/canaries and Vec2Text."
+    },
+    {
+      "module_id": "M07",
+      "title": "Attacking MCP and Tool Surfaces",
+      "coverage": "MCP architecture/transports, tool/schema enumeration, description poisoning, MCP Apps UI spoofing, over-privileged servers, filesystem/parameter bypass, tool chaining and capstone reasoning."
+    },
+    {
+      "module_id": "M08",
+      "title": "Supply Chain Attacks on AI/ML Systems",
+      "coverage": "MCP and dependency risks, unsafe pickle deserialization, training-data poisoning, adapter/LoRA poisoning, tokenizer manipulation, scanner evasion and backdoor considerations."
+    },
+    {
+      "module_id": "M09",
+      "title": "AI Infrastructure and Deployment Exploits",
+      "coverage": "Cloud IAM weaknesses, secrets, exposed endpoints/data stores, Kubernetes RBAC, identity chaining, multi-container pods and container security."
+    },
+    {
+      "module_id": "M10",
+      "title": "Threat Modeling for AI-Enabled Targets",
+      "coverage": "Partial intelligence, assumption registers, active recon, evolving architecture, crown jewels, ATLAS mapping, trust zones, escalation paths and intelligence briefs."
+    },
+    {
+      "module_id": "M11",
+      "title": "Assembling the Pieces — Capstone Red Team Engagement",
+      "coverage": "Integrated enterprise capstone: public web/AI entry points, backend data paths, RDS gateway, internal enumeration, share discovery, module hijack, credential exposure and AD impact. The uploaded capstone is an enterprise network/AD scenario, not solely an AI scenario."
+    }
+  ],
+  "technique_card_count": 81,
+  "record_format": "JSONL; one technique card per line; UTF-8",
+  "safety_note": "Examples are synthetic, local, read-only or dry-run. Source lab secrets and weaponised operational sequences are not included."
+}

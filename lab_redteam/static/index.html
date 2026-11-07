@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="lab-token" content="__LAB_TOKEN__">
+  <title>Lab Red Team</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <header><div><span class="eyebrow">CONTROLLED ENVIRONMENT</span><h1>Lab Red Team</h1><p>Scoped assessments. Observable evidence. Honest coverage.</p></div><span class="badge">Loopback dashboard</span></header>
+  <aside id="policy">Loading execution policy...</aside>
+  <main>
+    <section>
+      <h2>Configure an engagement</h2>
+      <form id="engagement">
+        <label>Title<input name="title" required maxlength="120" value="Controlled lab assessment"></label>
+        <label>Objective<textarea name="objective" required maxlength="2000">Assess observable controls and document findings and coverage gaps.</textarea></label>
+        <label>Authorization reference<input name="authorization_reference" required maxlength="300" placeholder="Lab owner approval or engagement ticket (no secrets)"></label>
+        <label>Mode<select name="mode"><option value="demo">Synthetic vulnerable/fixed demonstrations</option><option value="network">Allowlisted HTTP/TLS lab assessment</option></select></label>
+        <label>Explicit target IPs<input name="targets" placeholder="192.168.56.10, 192.168.56.11 (network mode only)"></label>
+        <label>HTTP service ports<input name="ports" value="80,443" required></label>
+        <label>Installed Ollama model (optional)<input name="model" placeholder="Enter an already installed local model"></label>
+        <label class="check"><input id="nuclei" name="nuclei" type="checkbox">Corroborate HTTP headers using the version-approved curated Nuclei check.</label>
+        <label class="check"><input name="authorized" type="checkbox" required>I confirm these targets are isolated and explicitly authorized.</label>
+        <button type="submit">Create plan for approval</button>
+      </form>
+      <p class="muted">Only HTTP HEAD requests to explicit IPs, at most 32 requests per run. No CIDR expansion, redirects, response bodies, credentials, or arbitrary commands. Model selection does not download models.</p>
+      <p id="error" role="alert"></p>
+    </section>
+    <section>
+      <div class="section-title"><h2>Assessment runs</h2><button id="refresh" class="secondary">Refresh</button></div>
+      <div id="runs"></div>
+      <div id="detail"><p class="muted">Select a run to review its plan, evidence and report.</p></div>
+    </section>
+    <section class="wide">
+      <h2>Tool adapter registry</h2>
+      <p class="muted">All 30 reference tools are registered. Installation and executable adapter coverage are separate.</p>
+      <div id="tools"></div>
+    </section>
+    <section class="wide">
+      <div class="section-title"><h2>Reference skill catalogue</h2><input id="search" placeholder="Search techniques and domains" aria-label="Search reference catalogue"></div>
+      <p id="catalogue-summary" class="muted"></p>
+      <p class="muted">The catalogue is reference knowledge, not an executable attack library. Overlapping enterprise records have unique ingestion IDs while retaining their original source IDs.</p>
+      <div id="catalogue"></div>
+    </section>
+  </main>
+  <footer>Local lab prototype. Not a production security platform. Unperformed tests are never reported as passed.</footer>
+</body>
+</html>
