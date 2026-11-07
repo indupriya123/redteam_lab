@@ -1,0 +1,1 @@
+{"id":"defensive_control_discovery","agent":"defensive_control_discovery","kinds":["security_control","trust_boundary"],"adapters":["inventory"],"modes":["PASSIVE","ACTIVE","AUTHENTICATED"],"max_items":1000}

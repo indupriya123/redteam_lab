@@ -1,0 +1,1 @@
+{"id":"service_fingerprinting","agent":"service_fingerprinting","kinds":["service"],"adapters":["inventory","nmap"],"modes":["PASSIVE","ACTIVE","AUTHENTICATED"],"max_items":1000}

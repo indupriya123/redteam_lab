@@ -1,0 +1,1 @@
+{"id":"dns_intelligence","agent":"dns_intelligence","kinds":["domain"],"adapters":["inventory","dns"],"modes":["PASSIVE","ACTIVE","AUTHENTICATED"],"max_items":1000}

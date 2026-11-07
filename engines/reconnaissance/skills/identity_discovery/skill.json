@@ -1,0 +1,1 @@
+{"id":"identity_discovery","agent":"identity_discovery","kinds":["identity"],"adapters":["inventory"],"modes":["PASSIVE","ACTIVE","AUTHENTICATED"],"max_items":1000}

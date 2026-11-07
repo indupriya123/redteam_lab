@@ -1,0 +1,1 @@
+{"id":"api_discovery","agent":"api_discovery","kinds":["api"],"adapters":["inventory","http"],"modes":["PASSIVE","ACTIVE","AUTHENTICATED"],"max_items":1000}

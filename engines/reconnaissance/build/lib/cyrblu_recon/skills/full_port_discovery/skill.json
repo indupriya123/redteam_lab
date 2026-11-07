@@ -1,0 +1,1 @@
+{"id":"full_port_discovery","agent":"port_discovery","kinds":["service","port"],"adapters":["inventory","nmap"],"modes":["PASSIVE","ACTIVE","AUTHENTICATED"],"max_items":1000}

@@ -1,0 +1,11 @@
+[project]
+name = "cyrblu-recon-skill-kubernetes-discovery"
+version = "0.1.0"
+dependencies = ["cyrblu-reconnaissance>=0.1,<0.2"]
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+[tool.setuptools]
+packages = []
+[tool.setuptools.data-files]
+"share/cyrblu/recon/skills/kubernetes_discovery" = ["skill.json"]

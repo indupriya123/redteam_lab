@@ -1,0 +1,1 @@
+{"id":"ai_supply_chain","agent":"ai_supply_chain","kinds":["repository","dependency"],"adapters":["inventory"],"modes":["PASSIVE","ACTIVE","AUTHENTICATED"],"max_items":1000}

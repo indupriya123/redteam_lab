@@ -1,5 +1,12 @@
 # Lab Red Team
 
+**Standalone reconnaissance now lives in `engines/reconnaissance/`.** It has a
+separate service, dashboard, credentials, database, full-range scan adapter,
+skill library, evidence graph and signed reports. See that directory's README
+for independent Kali installation and its explicit native-connector/test gaps.
+The legacy bounded Nmap workflow described below remains backward compatible;
+it is not the standalone reconnaissance engine.
+
 Local web dashboard and Python backend for **allowlisted, non-destructive lab
 assessment** and synthetic vulnerable/fixed demonstrations. This is an initial
 lab prototype, not an autonomous exploitation platform or a production service.

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cyrblu Reconnaissance</title><link rel="stylesheet" href="/static/style.css"></head>
+<body>
+<header><h1>Cyrblu / Reconnaissance</h1><p>Independent discovery workspace. No red-team engine required.</p></header>
+<main>
+<section><h2>Access</h2><label>Reconnaissance API token <input id="token" type="password" autocomplete="off"></label>
+<button id="connect">Connect</button><span id="message" role="status"></span></section>
+<section><h2>New reconnaissance assessment</h2>
+<form id="assessment">
+<label>Title <input id="title" required value="Authorized discovery"></label>
+<label>Mode <select id="mode"><option>PASSIVE</option><option>ACTIVE</option><option>AUTHENTICATED</option></select></label>
+<label>Target IPs, CIDRs or domains, one per line (ACTIVE only) <textarea id="targets"></textarea></label>
+<label>Authorization reference <input id="authorization" required></label>
+<label><input id="approved" type="checkbox" required> I approve this bounded discovery under the stated authorization.</label>
+<label><input id="fingerprint" type="checkbox"> Enable approved service probes (ACTIVE only)</label>
+<label><input id="udp" type="checkbox"> Enable all UDP ports (isolated privileged deployment required)</label>
+<label>Customer-authorized inventory JSON array <textarea id="inventory" spellcheck="false">[]</textarea></label>
+<p>Inventory objects: name, kind, source_reference, attributes. Never include credentials. Passive/authenticated export modes require inventory.</p>
+<button>Create assessment</button>
+</form></section>
+<section><h2>Assessments</h2><div id="runs"></div><button id="refresh">Refresh</button></section>
+<section><h2>Execution progress</h2><pre id="progress"></pre><button id="cancel">Cancel selected assessment</button></section>
+<section><h2>Live console</h2><pre id="console"></pre></section>
+<section><h2>Port discovery</h2><label>State <select id="state"><option value="">All</option><option>open</option><option>closed</option><option>filtered</option><option>open|filtered</option><option>unknown</option></select></label>
+<button id="previous">Previous 100</button><button id="next">Next 100</button><pre id="ports"></pre></section>
+<section><h2>Asset / AI / technology / agent / MCP / A2A inventory</h2><pre id="assets"></pre></section>
+<section><h2>Attack surface graph</h2><pre id="graph"></pre></section>
+<section><h2>Evidence</h2><pre id="evidence"></pre></section>
+<section><h2>Reconnaissance report</h2><button id="report">Download report</button>
+<button id="package">Download signed intelligence</button><button id="export">Download complete port inventory</button>
+<pre id="report-preview"></pre></section>
+<section><h2>Agent permissions and capability limitations</h2><pre id="capabilities"></pre></section>
+</main><script src="/static/app.js"></script></body></html>

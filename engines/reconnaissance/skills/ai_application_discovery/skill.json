@@ -1,0 +1,1 @@
+{"id":"ai_application_discovery","agent":"ai_application_discovery","kinds":["application","model_server"],"adapters":["inventory","http"],"modes":["PASSIVE","ACTIVE","AUTHENTICATED"],"max_items":1000}

@@ -1,0 +1,15 @@
+services:
+  reconnaissance-golden:
+    build: .
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    networks:
+      golden:
+        ipv4_address: 172.30.77.21
+networks:
+  golden:
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.30.77.0/24

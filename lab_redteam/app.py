@@ -4,6 +4,8 @@ import secrets
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+import httpx
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
@@ -12,6 +14,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from .catalogue import load_catalogue
 from .core import Approval, Engagement, Orchestrator, Policy, Store, markdown_report, run_view
 from .scanners import NMAP_SKILL, registry
+from .recon_intelligence import fetch as fetch_recon_intelligence
 
 ROOT = Path(__file__).resolve().parent.parent
 STATIC = Path(__file__).resolve().parent / "static"
@@ -87,6 +90,18 @@ def create_app(data_dir: Path | None = None, cidrs: str | None = None) -> FastAP
     @app.get("/api/tools")
     async def tools():
         return registry(nuclei_version, nmap_version)
+
+    @app.get("/api/recon/intelligence/{assessment_id}")
+    async def recon_intelligence(assessment_id: str):
+        endpoint = os.environ.get("LAB_RECON_URL", "")
+        token_path = os.environ.get("LAB_RECON_TOKEN_FILE", "")
+        trusted_key = os.environ.get("LAB_RECON_PUBLIC_KEY", "")
+        if not all((endpoint, token_path, trusted_key)):
+            raise HTTPException(409, "Signed reconnaissance API integration is not configured")
+        try:
+            return await fetch_recon_intelligence(assessment_id, endpoint, Path(token_path), Path(trusted_key))
+        except (OSError, httpx.HTTPError) as exc:
+            raise HTTPException(502, "Reconnaissance publication unavailable; no assessment was started") from exc
 
     @app.get("/api/config")
     async def config():

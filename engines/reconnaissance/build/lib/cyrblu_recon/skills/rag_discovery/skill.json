@@ -1,0 +1,1 @@
+{"id":"rag_discovery","agent":"rag_discovery","kinds":["rag"],"adapters":["inventory"],"modes":["PASSIVE","ACTIVE","AUTHENTICATED"],"max_items":1000}

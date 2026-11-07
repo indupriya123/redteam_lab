@@ -1,0 +1,1 @@
+"""Bounded reconnaissance adapters."""

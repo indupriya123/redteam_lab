@@ -1,0 +1,14 @@
+[
+  {"kind":"rag","name":"synthetic-rag","source_reference":"golden-customer-export","attributes":{"pipeline":"synthetic"}},
+  {"kind":"embedding","name":"synthetic-embedding","source_reference":"golden-customer-export","attributes":{}},
+  {"kind":"vector_database","name":"synthetic-vector","source_reference":"golden-customer-export","attributes":{}},
+  {"kind":"agent","name":"synthetic-agent","source_reference":"golden-customer-export","attributes":{}},
+  {"kind":"mcp_server","name":"synthetic-mcp","source_reference":"golden-customer-export","attributes":{}},
+  {"kind":"a2a_service","name":"synthetic-a2a","source_reference":"golden-customer-export","attributes":{}},
+  {"kind":"container","name":"synthetic-kubernetes-workload","source_reference":"golden-customer-export","attributes":{"orchestrator":"kubernetes"}},
+  {"kind":"repository","name":"synthetic-model-repository","source_reference":"golden-customer-export","attributes":{}},
+  {"kind":"cloud_resource","name":"synthetic-cloud-ai","source_reference":"golden-customer-export","attributes":{}},
+  {"kind":"identity","name":"synthetic-agent-identity","source_reference":"golden-customer-export","attributes":{}},
+  {"kind":"telemetry","name":"synthetic-defender-telemetry","source_reference":"golden-customer-export","attributes":{}},
+  {"kind":"trust_boundary","name":"synthetic-boundary","source_reference":"golden-customer-export","attributes":{}}
+]

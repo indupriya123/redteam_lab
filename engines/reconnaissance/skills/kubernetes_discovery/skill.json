@@ -1,0 +1,1 @@
+{"id":"kubernetes_discovery","agent":"kubernetes_discovery","kinds":["container"],"adapters":["inventory"],"modes":["PASSIVE","ACTIVE","AUTHENTICATED"],"max_items":1000}

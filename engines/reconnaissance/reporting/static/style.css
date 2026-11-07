@@ -1,0 +1,7 @@
+:root { color-scheme: dark; font: 15px system-ui,sans-serif; background:#101820; color:#e0eaf1; }
+body { margin:0; } header,main { max-width:1120px; margin:auto; padding:24px; }
+header { border-bottom:1px solid #345; } section { background:#192630; padding:20px; margin-bottom:18px; border-radius:10px; }
+h1,h2 { color:#80d6cc; } h2 { font-size:20px; } label { display:block; margin:12px 0; }
+input:not([type=checkbox]),textarea,select { display:block; width:95%; margin-top:6px; padding:10px; background:#101820; color:inherit; border:1px solid #456; border-radius:5px; }
+textarea { min-height:80px; } button { padding:9px 14px; margin:5px; border:0; border-radius:5px; background:#80d6cc; color:#102027; cursor:pointer; }
+pre { white-space:pre-wrap; overflow:auto; max-height:380px; font-size:12px; } #message { color:#ffca80; }

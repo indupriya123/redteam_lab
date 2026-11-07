@@ -1,0 +1,1 @@
+{"id":"a2a_discovery","agent":"a2a_discovery","kinds":["a2a_service"],"adapters":["inventory","http"],"modes":["PASSIVE","ACTIVE","AUTHENTICATED"],"max_items":1000}
