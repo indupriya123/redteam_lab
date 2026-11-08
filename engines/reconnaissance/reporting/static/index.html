@@ -12,11 +12,17 @@
 <label>Title <input id="title" required value="Authorized discovery"></label>
 <label>Mode <select id="mode"><option>PASSIVE</option><option>ACTIVE</option><option>AUTHENTICATED</option></select></label>
 <label>Target IPs, CIDRs or domains, one per line (ACTIVE only) <textarea id="targets"></textarea></label>
+<label>Domains to run (comma separated)<input id="domains" value="inventory,network,web,api"></label>
+<label>Explicit HTTP(S) origins / seed URLs, one per line <textarea id="urls"></textarea></label>
+<label>Excluded IPs, CIDRs, domains or URL prefixes, one per line <textarea id="exclusions"></textarea></label>
+<label>Approved non-destructive GET operation paths, one per line <textarea id="safe-get"></textarea></label>
 <label>Authorization reference <input id="authorization" required></label>
 <label><input id="approved" type="checkbox" required> I approve this bounded discovery under the stated authorization.</label>
 <label><input id="fingerprint" type="checkbox"> Enable approved service probes (ACTIVE only)</label>
 <label><input id="udp" type="checkbox"> Enable all UDP ports (isolated privileged deployment required)</label>
 <label>Customer-authorized inventory JSON array <textarea id="inventory" spellcheck="false">[]</textarea></label>
+<label>Supplied OpenAPI / BloodHound / CycloneDX / SPDX documents JSON array <textarea id="documents" spellcheck="false">[]</textarea></label>
+<p>Document objects: format, name, source_reference, content. API-only discovery does not require Nmap; select api/web without network.</p>
 <p>Inventory objects: name, kind, source_reference, attributes. Never include credentials. Passive/authenticated export modes require inventory.</p>
 <button>Create assessment</button>
 </form></section>
@@ -26,10 +32,16 @@
 <section><h2>Port discovery</h2><label>State <select id="state"><option value="">All</option><option>open</option><option>closed</option><option>filtered</option><option>open|filtered</option><option>unknown</option></select></label>
 <button id="previous">Previous 100</button><button id="next">Next 100</button><pre id="ports"></pre></section>
 <section><h2>Asset / AI / technology / agent / MCP / A2A inventory</h2><pre id="assets"></pre></section>
+<section><h2>API completeness and operation inventory</h2><pre id="api-coverage"></pre>
+<button id="api-previous">Previous 100</button><button id="api-next">Next 100</button><pre id="api-operations"></pre></section>
+<section><h2>Identity / Active Directory export intelligence</h2><pre id="ad-inventory"></pre></section>
+<section><h2>Supply-chain export intelligence</h2><pre id="supply-inventory"></pre></section>
+<section><h2>Tool and skill execution history</h2><pre id="executions"></pre></section>
 <section><h2>Attack surface graph</h2><pre id="graph"></pre></section>
 <section><h2>Evidence</h2><pre id="evidence"></pre></section>
 <section><h2>Reconnaissance report</h2><button id="report">Download report</button>
 <button id="package">Download signed intelligence</button><button id="export">Download complete port inventory</button>
+<button id="json-report">Download JSON report</button><button id="html-report">Download HTML report</button>
 <pre id="report-preview"></pre></section>
 <section><h2>Agent permissions and capability limitations</h2><pre id="capabilities"></pre></section>
 </main><script src="/static/app.js"></script></body></html>

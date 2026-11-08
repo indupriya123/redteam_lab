@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import sqlite3
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -38,6 +39,11 @@ class Store:
             CREATE INDEX IF NOT EXISTS port_assessment ON ports(assessment,protocol,port);
             CREATE INDEX IF NOT EXISTS evidence_assessment ON evidence(assessment);
             """)
+            db.execute("CREATE TABLE IF NOT EXISTS schema_migrations(version TEXT PRIMARY KEY, applied_at TEXT NOT NULL)")
+            for migration in sorted((Path(__file__).parent / "migrations").glob("*.sql")):
+                if not db.execute("SELECT 1 FROM schema_migrations WHERE version=?", (migration.name,)).fetchone():
+                    db.executescript(migration.read_text())
+                    db.execute("INSERT OR IGNORE INTO schema_migrations VALUES (?,?)", (migration.name, timestamp()))
 
     def connection(self):
         return sqlite3.connect(self.path, timeout=30)
@@ -84,12 +90,15 @@ class Store:
               inferred: bool = False, confidence: float = 1) -> str:
         key = hashlib.sha256(f"{kind}:{name}".encode()).hexdigest()[:24]
         document = {"id": key, "kind": kind, "name": name, "attributes": attributes or {},
-                    "inferred": inferred, "confidence": confidence, "evidence_refs": [evidence]}
+                    "inferred": inferred, "confidence": confidence, "evidence_refs": [evidence],
+                    "assessment_id": identifier, "discovered_at": timestamp(), "last_observed_at": timestamp(),
+                    "discovery_status": "inferred" if inferred else "observed", "source": evidence}
         with self.connection() as db:
             db.execute("BEGIN IMMEDIATE")
             prior = db.execute("SELECT document FROM assets WHERE id=? AND assessment=?", (key, identifier)).fetchone()
             if prior:
                 old = json.loads(prior[0])
+                document["discovered_at"] = old.get("discovered_at", document["discovered_at"])
                 document["evidence_refs"] = sorted(set(old["evidence_refs"] + [evidence]))
                 document["attributes"] = ({**document["attributes"], **old["attributes"]}
                                           if not old["inferred"] and inferred
@@ -97,8 +106,60 @@ class Store:
                 if not old["inferred"]:
                     document["inferred"] = False
                 document["confidence"] = max(old["confidence"], confidence)
+                document["discovery_status"] = "inferred" if document["inferred"] else "observed"
             db.execute("INSERT OR REPLACE INTO assets VALUES (?,?,?,?)", (key, identifier, kind, json.dumps(document)))
         return key
+
+    def record(self, identifier: str, category: str, key: str, document: dict, source: str,
+               evidence_refs: list[str], status: str = "analysed") -> None:
+        now = timestamp()
+        with self.connection() as db:
+            old = db.execute("SELECT discovered_at FROM intelligence_records WHERE assessment=? AND category=? AND id=?",
+                             (identifier, category, key)).fetchone()
+            created = old[0] if old else now
+            document = {**document, "id": key, "assessment_id": identifier, "source": source,
+                        "discovered_at": created, "last_observed_at": now, "status": status,
+                        "evidence_refs": evidence_refs}
+            db.execute("INSERT OR REPLACE INTO intelligence_records VALUES (?,?,?,?,?,?,?,?)",
+                       (identifier, category, key, status, source, created, now, json.dumps(document)))
+
+    def records(self, identifier: str, category: str, offset: int = 0, limit: int = 500) -> list[dict]:
+        with self.connection() as db:
+            return [json.loads(row[0]) for row in db.execute(
+                "SELECT document FROM intelligence_records WHERE assessment=? AND category=? ORDER BY id LIMIT ? OFFSET ?",
+                (identifier, category, limit, offset))]
+
+    def record_counts(self, identifier: str, category: str) -> dict:
+        with self.connection() as db:
+            return {row[0]: row[1] for row in db.execute(
+                "SELECT status,count(*) FROM intelligence_records WHERE assessment=? AND category=? GROUP BY status",
+                (identifier, category))}
+
+    def execution_start(self, identifier: str, agent: str, skill: str, tool: str, target: str) -> str:
+        key = str(uuid.uuid4())
+        document = {"id": key, "assessment_id": identifier, "agent": agent, "skill": skill,
+                    "tool": tool, "target": target, "started_at": timestamp(), "status": "running"}
+        with self.connection() as db:
+            db.execute("INSERT INTO executions VALUES (?,?,?,?,?,?,?)",
+                       (key, identifier, agent, skill, tool, "running", json.dumps(document)))
+        self.event(identifier, agent, "Skill execution started", document)
+        return key
+
+    def execution_finish(self, key: str, status: str, evidence_refs: list[str] | None = None, error: str = "") -> None:
+        with self.connection() as db:
+            row = db.execute("SELECT document FROM executions WHERE id=?", (key,)).fetchone()
+            if row is None:
+                raise ValueError("Execution record not found")
+            document = json.loads(row[0])
+            document.update(status=status, finished_at=timestamp(), evidence_refs=evidence_refs or [], error=error)
+            db.execute("UPDATE executions SET status=?,document=? WHERE id=?", (status, json.dumps(document), key))
+        self.event(document["assessment_id"], document["agent"], "Skill execution finished", document)
+
+    def executions(self, identifier: str, offset: int = 0, limit: int = 500) -> list[dict]:
+        with self.connection() as db:
+            return [json.loads(row[0]) for row in db.execute(
+                "SELECT document FROM executions WHERE assessment=? ORDER BY rowid LIMIT ? OFFSET ?",
+                (identifier, limit, offset))]
 
     def assets(self, identifier: str) -> list[dict]:
         with self.connection() as db:
@@ -162,6 +223,9 @@ class Store:
             db.execute("""UPDATE ports SET status=?, document=json_set(document,
                        '$.assessment_status', ?, '$.timestamp', ?)
                        WHERE assessment=? AND status='pending'""", (status, status, timestamp(), identifier))
+        for execution in self.executions(identifier, limit=100000):
+            if execution["status"] == "running":
+                self.execution_finish(execution["id"], status, error="Execution interrupted before completion")
 
     def recover(self) -> None:
         with self.connection() as db:

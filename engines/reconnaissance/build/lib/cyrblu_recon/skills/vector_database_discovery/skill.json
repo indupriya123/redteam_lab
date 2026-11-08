@@ -1,1 +1,0 @@
-{"id":"vector_database_discovery","agent":"vector_database_discovery","kinds":["vector_database"],"adapters":["inventory"],"modes":["PASSIVE","ACTIVE","AUTHENTICATED"],"max_items":1000}

@@ -3,7 +3,7 @@ name = "cyrblu-reconnaissance"
 version = "0.1.0"
 description = "Independent authorized reconnaissance and attack-surface intelligence engine"
 requires-python = ">=3.11"
-dependencies = ["fastapi>=0.115,<1", "httpx>=0.28,<1", "uvicorn>=0.30,<1", "cryptography>=42"]
+dependencies = ["fastapi>=0.115,<1", "httpx>=0.28,<1", "uvicorn>=0.30,<1", "cryptography>=42", "PyYAML>=6,<7"]
 
 [project.scripts]
 recon-engine = "cyrblu_recon.__main__:main"
@@ -24,7 +24,7 @@ packages = ["cyrblu_recon", "cyrblu_recon.config", "cyrblu_recon.schemas",
 package-dir = {cyrblu_recon = "."}
 
 [tool.setuptools.package-data]
-cyrblu_recon = ["skills/*/skill.json", "reporting/static/*"]
+cyrblu_recon = ["skills/*/skill.json", "reporting/static/*", "database/migrations/*.sql", "config/discovery-rules.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

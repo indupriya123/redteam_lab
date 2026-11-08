@@ -1,1 +1,0 @@
-{"id":"embedding_discovery","agent":"embedding_discovery","kinds":["embedding"],"adapters":["inventory"],"modes":["PASSIVE","ACTIVE","AUTHENTICATED"],"max_items":1000}

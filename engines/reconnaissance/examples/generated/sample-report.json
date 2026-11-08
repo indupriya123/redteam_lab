@@ -1,0 +1,1050 @@
+{
+  "schema_version": "1.0",
+  "assessment": {
+    "id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+    "created_at": "2026-11-08T09:05:35.189657+00:00",
+    "status": "completed",
+    "spec": {
+      "title": "Controlled synthetic loopback fixture - not native certification",
+      "mode": "ACTIVE",
+      "targets": [],
+      "authorization_reference": "[REDACTED]",
+      "approved": true,
+      "udp": false,
+      "fingerprint_services": false,
+      "inventory": [],
+      "relationships": [],
+      "domains": [
+        "api"
+      ],
+      "urls": [
+        "http://127.0.0.1:57906/"
+      ],
+      "exclusions": [],
+      "documents": [],
+      "safe_get_paths": [
+        "/metadata"
+      ]
+    },
+    "resolved_targets": [],
+    "agent_states": {
+      "a2a_discovery": {
+        "status": "not_assessed",
+        "skill": "a2a_discovery",
+        "inventory_items": 0,
+        "basis": "no_matching_inventory_input"
+      },
+      "agent_discovery": {
+        "status": "not_assessed",
+        "skill": "agent_discovery",
+        "inventory_items": 0,
+        "basis": "no_matching_inventory_input"
+      },
+      "ai_application_discovery": {
+        "status": "not_assessed",
+        "skill": "ai_application_discovery",
+        "inventory_items": 0,
+        "basis": "no_matching_inventory_input"
+      },
+      "ai_framework_discovery": {
+        "status": "not_assessed",
+        "skill": "ai_framework_discovery",
+        "inventory_items": 0,
+        "basis": "no_matching_inventory_input"
+      },
+      "ai_supply_chain": {
+        "status": "not_assessed",
+        "skill": "ai_supply_chain",
+        "inventory_items": 0,
+        "basis": "no_matching_inventory_input"
+      },
+      "api_discovery": {
+        "status": "completed",
+        "skill": "api_discovery",
+        "inventory_items": 0,
+        "basis": "documented_operation_analysis_not_vulnerability_validation"
+      },
+      "cloud_discovery": {
+        "status": "not_assessed",
+        "skill": "cloud_discovery",
+        "inventory_items": 0,
+        "basis": "no_matching_inventory_input"
+      },
+      "defensive_control_discovery": {
+        "status": "not_assessed",
+        "skill": "defensive_control_discovery",
+        "inventory_items": 0,
+        "basis": "no_matching_inventory_input"
+      },
+      "dns_intelligence": {
+        "status": "not_assessed",
+        "skill": "dns_intelligence",
+        "inventory_items": 0,
+        "basis": "no_matching_inventory_input"
+      },
+      "embedding_discovery": {
+        "status": "not_assessed",
+        "skill": "embedding_discovery",
+        "inventory_items": 0,
+        "basis": "no_matching_inventory_input"
+      },
+      "external_attack_surface": {
+        "status": "not_assessed",
+        "skill": "external_attack_surface",
+        "inventory_items": 0,
+        "basis": "no_matching_inventory_input"
+      },
+      "port_discovery": {
+        "status": "not_assessed",
+        "skill": "full_port_discovery",
+        "inventory_items": 0,
+        "basis": "no_matching_inventory_input"
+      },
+      "identity_discovery": {
+        "status": "not_assessed",
+        "skill": "identity_discovery",
+        "inventory_items": 0,
+        "basis": "no_matching_inventory_input"
+      },
+      "kubernetes_discovery": {
+        "status": "not_assessed",
+        "skill": "kubernetes_discovery",
+        "inventory_items": 0,
+        "basis": "no_matching_inventory_input"
+      },
+      "llm_fingerprinting": {
+        "status": "not_assessed",
+        "skill": "llm_fingerprinting",
+        "inventory_items": 0,
+        "basis": "no_matching_inventory_input"
+      },
+      "mcp_discovery": {
+        "status": "not_assessed",
+        "skill": "mcp_discovery",
+        "inventory_items": 0,
+        "basis": "no_matching_inventory_input"
+      },
+      "network_discovery": {
+        "status": "not_assessed",
+        "skill": "network_discovery",
+        "inventory_items": 0,
+        "basis": "no_matching_inventory_input"
+      },
+      "rag_discovery": {
+        "status": "not_assessed",
+        "skill": "rag_discovery",
+        "inventory_items": 0,
+        "basis": "no_matching_inventory_input"
+      },
+      "service_fingerprinting": {
+        "status": "not_assessed",
+        "skill": "service_fingerprinting",
+        "inventory_items": 0,
+        "basis": "no_matching_inventory_input"
+      },
+      "telemetry_discovery": {
+        "status": "not_assessed",
+        "skill": "telemetry_discovery",
+        "inventory_items": 0,
+        "basis": "no_matching_inventory_input"
+      },
+      "vector_database_discovery": {
+        "status": "not_assessed",
+        "skill": "vector_database_discovery",
+        "inventory_items": 0,
+        "basis": "no_matching_inventory_input"
+      },
+      "web_fingerprinting": {
+        "status": "not_assessed",
+        "skill": "web_fingerprinting",
+        "inventory_items": 0,
+        "basis": "no_matching_inventory_input"
+      },
+      "correlation": {
+        "status": "completed"
+      }
+    },
+    "domain_states": {
+      "api": "completed"
+    },
+    "limitations": [
+      "Unknown or untested architecture is not absent architecture; no vulnerability or compromise is claimed.",
+      "Exact model identity/version is not established by endpoint names or provider metadata.",
+      "Local evidence hashes are not an immutable evidence store.",
+      "Live RAG, vector, memory, identity, cloud and Kubernetes connectors require supplied exports or future validated adapters."
+    ],
+    "http_requests": 16,
+    "api_coverage": {
+      "specifications_discovered": 1,
+      "specifications_parsed": 1,
+      "specifications_incomplete": 0,
+      "total_operations": 2,
+      "operations_analysed": 2,
+      "operations_pending": 0,
+      "unverified_operations": 1,
+      "authentication_protected_operations": 0,
+      "requests": 16,
+      "discovery_issues": 0,
+      "documented_paths": 1,
+      "failed_references": 0,
+      "declared_authentication_operations": 0,
+      "operation_count_unknown": false,
+      "analysis_complete": true,
+      "execution_coverage_complete": false
+    },
+    "recommended_next_actions": [
+      {
+        "rule": "api-operation-review",
+        "asset_id": "99eee33389ac790c7a0441f8",
+        "asset": "http://127.0.0.1:57906/custom/openapi.json::POST /metadata",
+        "skill": "api_discovery",
+        "priority": 0.72,
+        "intent": "Review documented operations; validation requires explicit non-destructive test profiles.",
+        "basis": "source_asserted_or_inferred",
+        "confidence": 0.9,
+        "required_authorization": "separate_scope_and_read_only_profile",
+        "automatic_execution": false,
+        "classification": "assessment_opportunity_not_vulnerability"
+      },
+      {
+        "rule": "api-operation-review",
+        "asset_id": "eb2c0ecb3936e4847d6059be",
+        "asset": "http://127.0.0.1:57906/custom/openapi.json::GET /metadata",
+        "skill": "api_discovery",
+        "priority": 0.72,
+        "intent": "Review documented operations; validation requires explicit non-destructive test profiles.",
+        "basis": "source_asserted_or_inferred",
+        "confidence": 0.9,
+        "required_authorization": "separate_scope_and_read_only_profile",
+        "automatic_execution": false,
+        "classification": "assessment_opportunity_not_vulnerability"
+      }
+    ],
+    "finished_at": "2026-11-08T09:05:44.255984+00:00"
+  },
+  "methodology": "Authorized bounded discovery and source-asserted document analysis; no exploitation.",
+  "record_limits": {
+    "api_operations": 10000,
+    "api_specifications": 1000,
+    "identity_inventory": 10000,
+    "supply_chain_inventory": 10000,
+    "execution_history": 10000,
+    "remaining_records": "Use paginated intelligence/execution endpoints"
+  },
+  "tools": [
+    "httpx"
+  ],
+  "coverage": {
+    "total_ports": 0,
+    "completed_ports": 0,
+    "uncompleted_ports": 0,
+    "statuses": {},
+    "states": {},
+    "security_pass": false,
+    "api": {
+      "specifications_discovered": 1,
+      "specifications_parsed": 1,
+      "specifications_incomplete": 0,
+      "total_operations": 2,
+      "operations_analysed": 2,
+      "operations_pending": 0,
+      "unverified_operations": 1,
+      "authentication_protected_operations": 0,
+      "requests": 16,
+      "discovery_issues": 0,
+      "documented_paths": 1,
+      "failed_references": 0,
+      "declared_authentication_operations": 0,
+      "operation_count_unknown": false,
+      "analysis_complete": true,
+      "execution_coverage_complete": false
+    }
+  },
+  "assets": [
+    {
+      "id": "552212de1a965ac74b8ce3ff",
+      "kind": "api",
+      "name": "http://127.0.0.1:57906/custom/openapi.json",
+      "attributes": {
+        "version": "3.1.0",
+        "operations": 2,
+        "basis": "declared_API_schema"
+      },
+      "inferred": false,
+      "confidence": 0.9,
+      "evidence_refs": [
+        "2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2"
+      ],
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "discovered_at": "2026-11-08T09:05:43.564180+00:00",
+      "last_observed_at": "2026-11-08T09:05:43.564193+00:00",
+      "discovery_status": "observed",
+      "source": "2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2"
+    },
+    {
+      "id": "99eee33389ac790c7a0441f8",
+      "kind": "api_operation",
+      "name": "http://127.0.0.1:57906/custom/openapi.json::POST /metadata",
+      "attributes": {
+        "method": "POST",
+        "path": "/metadata",
+        "validation": "unverified"
+      },
+      "inferred": true,
+      "confidence": 0.9,
+      "evidence_refs": [
+        "2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2"
+      ],
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "discovered_at": "2026-11-08T09:05:43.601300+00:00",
+      "last_observed_at": "2026-11-08T09:05:43.601322+00:00",
+      "discovery_status": "inferred",
+      "source": "2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2"
+    },
+    {
+      "id": "eb2c0ecb3936e4847d6059be",
+      "kind": "api_operation",
+      "name": "http://127.0.0.1:57906/custom/openapi.json::GET /metadata",
+      "attributes": {
+        "method": "GET",
+        "path": "/metadata",
+        "validation": "unverified"
+      },
+      "inferred": true,
+      "confidence": 0.9,
+      "evidence_refs": [
+        "2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2"
+      ],
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "discovered_at": "2026-11-08T09:05:43.574639+00:00",
+      "last_observed_at": "2026-11-08T09:05:43.574652+00:00",
+      "discovery_status": "inferred",
+      "source": "2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2"
+    }
+  ],
+  "graph": {
+    "schema_version": "1.0",
+    "nodes": [
+      {
+        "id": "552212de1a965ac74b8ce3ff",
+        "kind": "api",
+        "name": "http://127.0.0.1:57906/custom/openapi.json",
+        "attributes": {
+          "version": "3.1.0",
+          "operations": 2,
+          "basis": "declared_API_schema"
+        },
+        "inferred": false,
+        "confidence": 0.9,
+        "evidence_refs": [
+          "2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2"
+        ],
+        "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+        "discovered_at": "2026-11-08T09:05:43.564180+00:00",
+        "last_observed_at": "2026-11-08T09:05:43.564193+00:00",
+        "discovery_status": "observed",
+        "source": "2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2"
+      },
+      {
+        "id": "99eee33389ac790c7a0441f8",
+        "kind": "api_operation",
+        "name": "http://127.0.0.1:57906/custom/openapi.json::POST /metadata",
+        "attributes": {
+          "method": "POST",
+          "path": "/metadata",
+          "validation": "unverified"
+        },
+        "inferred": true,
+        "confidence": 0.9,
+        "evidence_refs": [
+          "2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2"
+        ],
+        "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+        "discovered_at": "2026-11-08T09:05:43.601300+00:00",
+        "last_observed_at": "2026-11-08T09:05:43.601322+00:00",
+        "discovery_status": "inferred",
+        "source": "2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2"
+      },
+      {
+        "id": "eb2c0ecb3936e4847d6059be",
+        "kind": "api_operation",
+        "name": "http://127.0.0.1:57906/custom/openapi.json::GET /metadata",
+        "attributes": {
+          "method": "GET",
+          "path": "/metadata",
+          "validation": "unverified"
+        },
+        "inferred": true,
+        "confidence": 0.9,
+        "evidence_refs": [
+          "2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2"
+        ],
+        "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+        "discovered_at": "2026-11-08T09:05:43.574639+00:00",
+        "last_observed_at": "2026-11-08T09:05:43.574652+00:00",
+        "discovery_status": "inferred",
+        "source": "2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2"
+      }
+    ],
+    "observed_edges": [
+      {
+        "source": "552212de1a965ac74b8ce3ff",
+        "target": "eb2c0ecb3936e4847d6059be",
+        "relation": "documents",
+        "evidence_refs": [
+          "2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2"
+        ],
+        "inferred": false,
+        "confidence": 0.9
+      },
+      {
+        "source": "552212de1a965ac74b8ce3ff",
+        "target": "99eee33389ac790c7a0441f8",
+        "relation": "documents",
+        "evidence_refs": [
+          "2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2"
+        ],
+        "inferred": false,
+        "confidence": 0.9
+      }
+    ],
+    "inferred_edges": []
+  },
+  "api_operations": [
+    {
+      "specification": "http://127.0.0.1:57906/custom/openapi.json",
+      "path": "/metadata",
+      "method": "GET",
+      "kind": "path",
+      "operation_id": "",
+      "parameters": [],
+      "request_body": {},
+      "responses": {
+        "200": {
+          "description": "Public synthetic metadata"
+        }
+      },
+      "security": [],
+      "security_schemes": {},
+      "authentication": "not_declared_or_optional",
+      "deprecated": false,
+      "servers": [
+        "http://127.0.0.1:57906/"
+      ],
+      "consumes": [],
+      "produces": [],
+      "assessment_opportunities": [],
+      "confidence": 0.9,
+      "validation_status": "response_observed",
+      "failed_references": [],
+      "key": "c6f4251915f23a8703c97b6b5b9029883b5acfd88ea1517f4509bfc032e24012",
+      "id": "c6f4251915f23a8703c97b6b5b9029883b5acfd88ea1517f4509bfc032e24012",
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "source": "http://127.0.0.1:57906/custom/openapi.json",
+      "discovered_at": "2026-11-08T09:05:43.569563+00:00",
+      "last_observed_at": "2026-11-08T09:05:44.218972+00:00",
+      "status": "analysed",
+      "evidence_refs": [
+        "2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2",
+        "5b106b42db56722bd104068bd8eef2e365ed58a1d59549dd1e0bd999179c6f71"
+      ],
+      "response_status": 200
+    },
+    {
+      "specification": "http://127.0.0.1:57906/custom/openapi.json",
+      "path": "/metadata",
+      "method": "POST",
+      "kind": "path",
+      "operation_id": "",
+      "parameters": [],
+      "request_body": {},
+      "responses": {
+        "201": {
+          "description": "Documented only; never executed"
+        }
+      },
+      "security": [],
+      "security_schemes": {},
+      "authentication": "not_declared_or_optional",
+      "deprecated": false,
+      "servers": [
+        "http://127.0.0.1:57906/"
+      ],
+      "consumes": [],
+      "produces": [],
+      "assessment_opportunities": [],
+      "confidence": 0.9,
+      "validation_status": "unverified",
+      "failed_references": [],
+      "key": "f8be1f73bc4c70b14b865800ff782162b1606d5c2ef35cb93d8b2a18df00f79e",
+      "id": "f8be1f73bc4c70b14b865800ff782162b1606d5c2ef35cb93d8b2a18df00f79e",
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "source": "http://127.0.0.1:57906/custom/openapi.json",
+      "discovered_at": "2026-11-08T09:05:43.594670+00:00",
+      "last_observed_at": "2026-11-08T09:05:43.594670+00:00",
+      "status": "analysed",
+      "evidence_refs": [
+        "2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2"
+      ]
+    }
+  ],
+  "api_specifications": [
+    {
+      "version": "3.1.0",
+      "paths": 1,
+      "total_operations": 2,
+      "failed_references": [],
+      "errors": [],
+      "confidence": 0.9,
+      "id": "af9b14ecdc524ba96ae5b01d129f54125b644c7a9925f4697f3d32da622c67ed",
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "source": "http://127.0.0.1:57906/custom/openapi.json",
+      "discovered_at": "2026-11-08T09:05:43.559063+00:00",
+      "last_observed_at": "2026-11-08T09:05:43.559063+00:00",
+      "status": "parsed",
+      "evidence_refs": [
+        "2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2"
+      ]
+    }
+  ],
+  "identity_inventory": [],
+  "supply_chain_inventory": [],
+  "execution_history": [
+    {
+      "id": "130acec3-3749-4eb6-9f08-89b567812ded",
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "agent": "api_discovery",
+      "skill": "api_discovery",
+      "tool": "httpx",
+      "target": "http://127.0.0.1:57906/",
+      "started_at": "2026-11-08T09:05:35.223574+00:00",
+      "status": "completed",
+      "finished_at": "2026-11-08T09:05:35.806965+00:00",
+      "evidence_refs": [
+        "6f364d38f7f6c404f0822d285b491ec4fe8d41a39c159dbe178ff56bbd2f4d21"
+      ],
+      "error": ""
+    },
+    {
+      "id": "ad53b049-3599-46c5-b054-0e75fa95446a",
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "agent": "api_discovery",
+      "skill": "api_discovery",
+      "tool": "httpx",
+      "target": "http://127.0.0.1:57906/openapi.json",
+      "started_at": "2026-11-08T09:05:35.811017+00:00",
+      "status": "completed",
+      "finished_at": "2026-11-08T09:05:36.349120+00:00",
+      "evidence_refs": [
+        "e5ef4b44002db99a4ffbdb31d9b72aad09a3ef5d78828f8aa9e097c6977fc0aa"
+      ],
+      "error": ""
+    },
+    {
+      "id": "8ee1462b-62d0-48fc-b371-06b5a3a78377",
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "agent": "api_discovery",
+      "skill": "api_discovery",
+      "tool": "httpx",
+      "target": "http://127.0.0.1:57906/openapi.yaml",
+      "started_at": "2026-11-08T09:05:36.358446+00:00",
+      "status": "completed",
+      "finished_at": "2026-11-08T09:05:36.894635+00:00",
+      "evidence_refs": [
+        "8de14b3f5db645581600afac0f717126df1f2e1c39e8545eb0140a69b7b3f4a5"
+      ],
+      "error": ""
+    },
+    {
+      "id": "43f41029-745a-4679-9989-87f268996436",
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "agent": "api_discovery",
+      "skill": "api_discovery",
+      "tool": "httpx",
+      "target": "http://127.0.0.1:57906/swagger.json",
+      "started_at": "2026-11-08T09:05:36.905526+00:00",
+      "status": "completed",
+      "finished_at": "2026-11-08T09:05:37.441957+00:00",
+      "evidence_refs": [
+        "e1ef45be5d1a4a8ca6c950a46623d8b3dee1eaadf65906573f036e48a009ce91"
+      ],
+      "error": ""
+    },
+    {
+      "id": "d564872c-f3cd-486f-8be0-60dc5a05b37c",
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "agent": "api_discovery",
+      "skill": "api_discovery",
+      "tool": "httpx",
+      "target": "http://127.0.0.1:57906/swagger.yaml",
+      "started_at": "2026-11-08T09:05:37.443693+00:00",
+      "status": "completed",
+      "finished_at": "2026-11-08T09:05:37.980515+00:00",
+      "evidence_refs": [
+        "ad88e6a428b64e9a1c744dac3f9a337ca241069a535d0c1e0c4375bb68efe2ca"
+      ],
+      "error": ""
+    },
+    {
+      "id": "1c5cd921-ecab-4ad0-824b-325a1cbe359d",
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "agent": "api_discovery",
+      "skill": "api_discovery",
+      "tool": "httpx",
+      "target": "http://127.0.0.1:57906/api-docs",
+      "started_at": "2026-11-08T09:05:37.993184+00:00",
+      "status": "completed",
+      "finished_at": "2026-11-08T09:05:38.529054+00:00",
+      "evidence_refs": [
+        "c855b543dc1b94d3b57db112d8d4b7d4cce4a7d586a211d5333de15b9675247b"
+      ],
+      "error": ""
+    },
+    {
+      "id": "8d08f510-f698-43f9-ba58-cce8fc6e6772",
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "agent": "api_discovery",
+      "skill": "api_discovery",
+      "tool": "httpx",
+      "target": "http://127.0.0.1:57906/api/docs",
+      "started_at": "2026-11-08T09:05:38.537559+00:00",
+      "status": "completed",
+      "finished_at": "2026-11-08T09:05:39.079070+00:00",
+      "evidence_refs": [
+        "74d91ccf3ba78be886b3f29866d0aa50f127257f5762fa09d8b16419aa37ef0f"
+      ],
+      "error": ""
+    },
+    {
+      "id": "5c5db5d5-7ece-4405-8818-9174ecbddfb4",
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "agent": "api_discovery",
+      "skill": "api_discovery",
+      "tool": "httpx",
+      "target": "http://127.0.0.1:57906/swagger-ui",
+      "started_at": "2026-11-08T09:05:39.090447+00:00",
+      "status": "completed",
+      "finished_at": "2026-11-08T09:05:39.639902+00:00",
+      "evidence_refs": [
+        "8d32d7a85f82e9885d045794e1d31da9cdefd5cd86bbff6e9d86dfc605ed543a"
+      ],
+      "error": ""
+    },
+    {
+      "id": "a23b7d60-e3c3-45ae-bdbd-b53a529b1782",
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "agent": "api_discovery",
+      "skill": "api_discovery",
+      "tool": "httpx",
+      "target": "http://127.0.0.1:57906/swagger-ui.html",
+      "started_at": "2026-11-08T09:05:39.649217+00:00",
+      "status": "completed",
+      "finished_at": "2026-11-08T09:05:40.196018+00:00",
+      "evidence_refs": [
+        "993d80f5e4e50778be631f8625d4e84fc379b796956cc3086ca368a40f57ae61"
+      ],
+      "error": ""
+    },
+    {
+      "id": "3fdab89e-5a4f-4d6a-a4dc-e9b3e3955a27",
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "agent": "api_discovery",
+      "skill": "api_discovery",
+      "tool": "httpx",
+      "target": "http://127.0.0.1:57906/v1/api-docs",
+      "started_at": "2026-11-08T09:05:40.205770+00:00",
+      "status": "completed",
+      "finished_at": "2026-11-08T09:05:40.751304+00:00",
+      "evidence_refs": [
+        "7666a173f1bac0c278df33c4953c0dd401962c5e6b57cdc10bc652eb9a3e8069"
+      ],
+      "error": ""
+    },
+    {
+      "id": "463702fb-244f-414d-874d-b60344385242",
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "agent": "api_discovery",
+      "skill": "api_discovery",
+      "tool": "httpx",
+      "target": "http://127.0.0.1:57906/v2/api-docs",
+      "started_at": "2026-11-08T09:05:40.781521+00:00",
+      "status": "completed",
+      "finished_at": "2026-11-08T09:05:41.328177+00:00",
+      "evidence_refs": [
+        "d73d2ba2fb2dcb9e6cee30f226302b3a8c0e21119d916dd4ba363102538b261b"
+      ],
+      "error": ""
+    },
+    {
+      "id": "c47b4a33-4f5b-47d4-8b4d-f5f27a396d49",
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "agent": "api_discovery",
+      "skill": "api_discovery",
+      "tool": "httpx",
+      "target": "http://127.0.0.1:57906/v3/api-docs",
+      "started_at": "2026-11-08T09:05:41.339115+00:00",
+      "status": "completed",
+      "finished_at": "2026-11-08T09:05:41.874538+00:00",
+      "evidence_refs": [
+        "b9c7430ee28133583d588156c7ad9eaab1ba5c1fd09fe297669adfabc997a198"
+      ],
+      "error": ""
+    },
+    {
+      "id": "891eee0e-9dcb-4bac-872d-c2fe0fc898e1",
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "agent": "api_discovery",
+      "skill": "api_discovery",
+      "tool": "httpx",
+      "target": "http://127.0.0.1:57906/api/v1/docs",
+      "started_at": "2026-11-08T09:05:41.882730+00:00",
+      "status": "completed",
+      "finished_at": "2026-11-08T09:05:42.430147+00:00",
+      "evidence_refs": [
+        "c47cf4698174dd5978b56a54ce96869062962a5856fca5e0d97cf40d5226f8be"
+      ],
+      "error": ""
+    },
+    {
+      "id": "a655acf8-3519-4ee1-9dfb-f37b64737fe8",
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "agent": "api_discovery",
+      "skill": "api_discovery",
+      "tool": "httpx",
+      "target": "http://127.0.0.1:57906/api/v2/docs",
+      "started_at": "2026-11-08T09:05:42.443510+00:00",
+      "status": "completed",
+      "finished_at": "2026-11-08T09:05:42.993779+00:00",
+      "evidence_refs": [
+        "735367a25412b8b48c09ec66dc96d513f0d62dc438239977344cb14e32fa833d"
+      ],
+      "error": ""
+    },
+    {
+      "id": "3291cb6d-1f91-45db-aa0d-02259521c43f",
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "agent": "api_discovery",
+      "skill": "api_discovery",
+      "tool": "httpx",
+      "target": "http://127.0.0.1:57906/custom/openapi.json",
+      "started_at": "2026-11-08T09:05:43.005195+00:00",
+      "status": "completed",
+      "finished_at": "2026-11-08T09:05:43.548135+00:00",
+      "evidence_refs": [
+        "2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2"
+      ],
+      "error": ""
+    },
+    {
+      "id": "f17eae4b-886c-4ef4-90e5-e647b08acbce",
+      "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+      "agent": "api_discovery",
+      "skill": "api_discovery",
+      "tool": "httpx",
+      "target": "http://127.0.0.1:57906/metadata",
+      "started_at": "2026-11-08T09:05:43.663572+00:00",
+      "status": "completed",
+      "finished_at": "2026-11-08T09:05:44.210043+00:00",
+      "evidence_refs": [
+        "5b106b42db56722bd104068bd8eef2e365ed58a1d59549dd1e0bd999179c6f71"
+      ],
+      "error": ""
+    }
+  ],
+  "evidence": [
+    {
+      "timestamp": "2026-11-08T09:05:35.803590+00:00",
+      "source": "http://127.0.0.1:57906/",
+      "mode": "ACTIVE",
+      "observation": {
+        "url": "http://127.0.0.1:57906/",
+        "status": 200,
+        "headers": {
+          "server": "BaseHTTP/0.6 Python/3.13.16",
+          "content-type": "text/html"
+        },
+        "body_sha256": "fe41ceb0cfb325a7d0eaf3cf12361a9f18cbcbf07e7161803aa45cb6a914a9a5",
+        "raw_body_retained": false,
+        "redirect_blocked": false
+      },
+      "id": "6f364d38f7f6c404f0822d285b491ec4fe8d41a39c159dbe178ff56bbd2f4d21",
+      "sha256": "6f364d38f7f6c404f0822d285b491ec4fe8d41a39c159dbe178ff56bbd2f4d21"
+    },
+    {
+      "timestamp": "2026-11-08T09:05:36.334851+00:00",
+      "source": "http://127.0.0.1:57906/openapi.json",
+      "mode": "ACTIVE",
+      "observation": {
+        "url": "http://127.0.0.1:57906/openapi.json",
+        "status": 404,
+        "headers": {
+          "server": "BaseHTTP/0.6 Python/3.13.16",
+          "content-type": "text/plain"
+        },
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_body_retained": false,
+        "redirect_blocked": false
+      },
+      "id": "e5ef4b44002db99a4ffbdb31d9b72aad09a3ef5d78828f8aa9e097c6977fc0aa",
+      "sha256": "e5ef4b44002db99a4ffbdb31d9b72aad09a3ef5d78828f8aa9e097c6977fc0aa"
+    },
+    {
+      "timestamp": "2026-11-08T09:05:36.880390+00:00",
+      "source": "http://127.0.0.1:57906/openapi.yaml",
+      "mode": "ACTIVE",
+      "observation": {
+        "url": "http://127.0.0.1:57906/openapi.yaml",
+        "status": 404,
+        "headers": {
+          "server": "BaseHTTP/0.6 Python/3.13.16",
+          "content-type": "text/plain"
+        },
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_body_retained": false,
+        "redirect_blocked": false
+      },
+      "id": "8de14b3f5db645581600afac0f717126df1f2e1c39e8545eb0140a69b7b3f4a5",
+      "sha256": "8de14b3f5db645581600afac0f717126df1f2e1c39e8545eb0140a69b7b3f4a5"
+    },
+    {
+      "timestamp": "2026-11-08T09:05:37.437920+00:00",
+      "source": "http://127.0.0.1:57906/swagger.json",
+      "mode": "ACTIVE",
+      "observation": {
+        "url": "http://127.0.0.1:57906/swagger.json",
+        "status": 404,
+        "headers": {
+          "server": "BaseHTTP/0.6 Python/3.13.16",
+          "content-type": "text/plain"
+        },
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_body_retained": false,
+        "redirect_blocked": false
+      },
+      "id": "e1ef45be5d1a4a8ca6c950a46623d8b3dee1eaadf65906573f036e48a009ce91",
+      "sha256": "e1ef45be5d1a4a8ca6c950a46623d8b3dee1eaadf65906573f036e48a009ce91"
+    },
+    {
+      "timestamp": "2026-11-08T09:05:37.965124+00:00",
+      "source": "http://127.0.0.1:57906/swagger.yaml",
+      "mode": "ACTIVE",
+      "observation": {
+        "url": "http://127.0.0.1:57906/swagger.yaml",
+        "status": 404,
+        "headers": {
+          "server": "BaseHTTP/0.6 Python/3.13.16",
+          "content-type": "text/plain"
+        },
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_body_retained": false,
+        "redirect_blocked": false
+      },
+      "id": "ad88e6a428b64e9a1c744dac3f9a337ca241069a535d0c1e0c4375bb68efe2ca",
+      "sha256": "ad88e6a428b64e9a1c744dac3f9a337ca241069a535d0c1e0c4375bb68efe2ca"
+    },
+    {
+      "timestamp": "2026-11-08T09:05:38.518269+00:00",
+      "source": "http://127.0.0.1:57906/api-docs",
+      "mode": "ACTIVE",
+      "observation": {
+        "url": "http://127.0.0.1:57906/api-docs",
+        "status": 404,
+        "headers": {
+          "server": "BaseHTTP/0.6 Python/3.13.16",
+          "content-type": "text/plain"
+        },
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_body_retained": false,
+        "redirect_blocked": false
+      },
+      "id": "c855b543dc1b94d3b57db112d8d4b7d4cce4a7d586a211d5333de15b9675247b",
+      "sha256": "c855b543dc1b94d3b57db112d8d4b7d4cce4a7d586a211d5333de15b9675247b"
+    },
+    {
+      "timestamp": "2026-11-08T09:05:39.065008+00:00",
+      "source": "http://127.0.0.1:57906/api/docs",
+      "mode": "ACTIVE",
+      "observation": {
+        "url": "http://127.0.0.1:57906/api/docs",
+        "status": 404,
+        "headers": {
+          "server": "BaseHTTP/0.6 Python/3.13.16",
+          "content-type": "text/plain"
+        },
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_body_retained": false,
+        "redirect_blocked": false
+      },
+      "id": "74d91ccf3ba78be886b3f29866d0aa50f127257f5762fa09d8b16419aa37ef0f",
+      "sha256": "74d91ccf3ba78be886b3f29866d0aa50f127257f5762fa09d8b16419aa37ef0f"
+    },
+    {
+      "timestamp": "2026-11-08T09:05:39.624399+00:00",
+      "source": "http://127.0.0.1:57906/swagger-ui",
+      "mode": "ACTIVE",
+      "observation": {
+        "url": "http://127.0.0.1:57906/swagger-ui",
+        "status": 404,
+        "headers": {
+          "server": "BaseHTTP/0.6 Python/3.13.16",
+          "content-type": "text/plain"
+        },
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_body_retained": false,
+        "redirect_blocked": false
+      },
+      "id": "8d32d7a85f82e9885d045794e1d31da9cdefd5cd86bbff6e9d86dfc605ed543a",
+      "sha256": "8d32d7a85f82e9885d045794e1d31da9cdefd5cd86bbff6e9d86dfc605ed543a"
+    },
+    {
+      "timestamp": "2026-11-08T09:05:40.180807+00:00",
+      "source": "http://127.0.0.1:57906/swagger-ui.html",
+      "mode": "ACTIVE",
+      "observation": {
+        "url": "http://127.0.0.1:57906/swagger-ui.html",
+        "status": 404,
+        "headers": {
+          "server": "BaseHTTP/0.6 Python/3.13.16",
+          "content-type": "text/plain"
+        },
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_body_retained": false,
+        "redirect_blocked": false
+      },
+      "id": "993d80f5e4e50778be631f8625d4e84fc379b796956cc3086ca368a40f57ae61",
+      "sha256": "993d80f5e4e50778be631f8625d4e84fc379b796956cc3086ca368a40f57ae61"
+    },
+    {
+      "timestamp": "2026-11-08T09:05:40.735448+00:00",
+      "source": "http://127.0.0.1:57906/v1/api-docs",
+      "mode": "ACTIVE",
+      "observation": {
+        "url": "http://127.0.0.1:57906/v1/api-docs",
+        "status": 404,
+        "headers": {
+          "server": "BaseHTTP/0.6 Python/3.13.16",
+          "content-type": "text/plain"
+        },
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_body_retained": false,
+        "redirect_blocked": false
+      },
+      "id": "7666a173f1bac0c278df33c4953c0dd401962c5e6b57cdc10bc652eb9a3e8069",
+      "sha256": "7666a173f1bac0c278df33c4953c0dd401962c5e6b57cdc10bc652eb9a3e8069"
+    },
+    {
+      "timestamp": "2026-11-08T09:05:41.315016+00:00",
+      "source": "http://127.0.0.1:57906/v2/api-docs",
+      "mode": "ACTIVE",
+      "observation": {
+        "url": "http://127.0.0.1:57906/v2/api-docs",
+        "status": 404,
+        "headers": {
+          "server": "BaseHTTP/0.6 Python/3.13.16",
+          "content-type": "text/plain"
+        },
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_body_retained": false,
+        "redirect_blocked": false
+      },
+      "id": "d73d2ba2fb2dcb9e6cee30f226302b3a8c0e21119d916dd4ba363102538b261b",
+      "sha256": "d73d2ba2fb2dcb9e6cee30f226302b3a8c0e21119d916dd4ba363102538b261b"
+    },
+    {
+      "timestamp": "2026-11-08T09:05:41.863242+00:00",
+      "source": "http://127.0.0.1:57906/v3/api-docs",
+      "mode": "ACTIVE",
+      "observation": {
+        "url": "http://127.0.0.1:57906/v3/api-docs",
+        "status": 404,
+        "headers": {
+          "server": "BaseHTTP/0.6 Python/3.13.16",
+          "content-type": "text/plain"
+        },
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_body_retained": false,
+        "redirect_blocked": false
+      },
+      "id": "b9c7430ee28133583d588156c7ad9eaab1ba5c1fd09fe297669adfabc997a198",
+      "sha256": "b9c7430ee28133583d588156c7ad9eaab1ba5c1fd09fe297669adfabc997a198"
+    },
+    {
+      "timestamp": "2026-11-08T09:05:42.413826+00:00",
+      "source": "http://127.0.0.1:57906/api/v1/docs",
+      "mode": "ACTIVE",
+      "observation": {
+        "url": "http://127.0.0.1:57906/api/v1/docs",
+        "status": 404,
+        "headers": {
+          "server": "BaseHTTP/0.6 Python/3.13.16",
+          "content-type": "text/plain"
+        },
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_body_retained": false,
+        "redirect_blocked": false
+      },
+      "id": "c47cf4698174dd5978b56a54ce96869062962a5856fca5e0d97cf40d5226f8be",
+      "sha256": "c47cf4698174dd5978b56a54ce96869062962a5856fca5e0d97cf40d5226f8be"
+    },
+    {
+      "timestamp": "2026-11-08T09:05:42.978080+00:00",
+      "source": "http://127.0.0.1:57906/api/v2/docs",
+      "mode": "ACTIVE",
+      "observation": {
+        "url": "http://127.0.0.1:57906/api/v2/docs",
+        "status": 404,
+        "headers": {
+          "server": "BaseHTTP/0.6 Python/3.13.16",
+          "content-type": "text/plain"
+        },
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_body_retained": false,
+        "redirect_blocked": false
+      },
+      "id": "735367a25412b8b48c09ec66dc96d513f0d62dc438239977344cb14e32fa833d",
+      "sha256": "735367a25412b8b48c09ec66dc96d513f0d62dc438239977344cb14e32fa833d"
+    },
+    {
+      "timestamp": "2026-11-08T09:05:43.535045+00:00",
+      "source": "http://127.0.0.1:57906/custom/openapi.json",
+      "mode": "ACTIVE",
+      "observation": {
+        "url": "http://127.0.0.1:57906/custom/openapi.json",
+        "status": 200,
+        "headers": {
+          "server": "BaseHTTP/0.6 Python/3.13.16",
+          "content-type": "application/json"
+        },
+        "body_sha256": "c7a6ec8208c6d2c256e8bf1cb3f7f8994c52397be5dce371aade422794172fcf",
+        "raw_body_retained": false,
+        "redirect_blocked": false
+      },
+      "id": "2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2",
+      "sha256": "2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2"
+    },
+    {
+      "timestamp": "2026-11-08T09:05:44.200844+00:00",
+      "source": "http://127.0.0.1:57906/metadata",
+      "mode": "ACTIVE",
+      "observation": {
+        "url": "http://127.0.0.1:57906/metadata",
+        "status": 200,
+        "headers": {
+          "server": "BaseHTTP/0.6 Python/3.13.16",
+          "content-type": "application/json"
+        },
+        "body_sha256": "5f1b3431408401f9d68b5ee37a843f3618480a2e3689ca58ffcf6791f4e643c6",
+        "raw_body_retained": false,
+        "redirect_blocked": false
+      },
+      "id": "5b106b42db56722bd104068bd8eef2e365ed58a1d59549dd1e0bd999179c6f71",
+      "sha256": "5b106b42db56722bd104068bd8eef2e365ed58a1d59549dd1e0bd999179c6f71"
+    }
+  ],
+  "limitations": [
+    "Unknown or untested architecture is not absent architecture; no vulnerability or compromise is claimed.",
+    "Exact model identity/version is not established by endpoint names or provider metadata.",
+    "Local evidence hashes are not an immutable evidence store.",
+    "Live RAG, vector, memory, identity, cloud and Kubernetes connectors require supplied exports or future validated adapters."
+  ]
+}

@@ -1,1 +1,0 @@
-{"id":"telemetry_discovery","agent":"telemetry_discovery","kinds":["telemetry"],"adapters":["inventory"],"modes":["PASSIVE","ACTIVE","AUTHENTICATED"],"max_items":1000}

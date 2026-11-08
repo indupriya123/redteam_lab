@@ -1,1 +1,0 @@
-"""Configuration and deterministic authorization."""

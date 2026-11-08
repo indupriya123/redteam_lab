@@ -1,1 +1,0 @@
-{"id":"cloud_discovery","agent":"cloud_discovery","kinds":["cloud_resource"],"adapters":["inventory"],"modes":["PASSIVE","ACTIVE","AUTHENTICATED"],"max_items":1000}

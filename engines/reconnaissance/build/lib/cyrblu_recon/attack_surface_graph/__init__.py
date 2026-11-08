@@ -1,1 +1,0 @@
-"""Assessment-isolated graph construction."""

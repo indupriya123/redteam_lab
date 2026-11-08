@@ -1,1 +1,0 @@
-{"id":"mcp_discovery","agent":"mcp_discovery","kinds":["mcp_server","tool"],"adapters":["inventory","http"],"modes":["PASSIVE","ACTIVE","AUTHENTICATED"],"max_items":1000}

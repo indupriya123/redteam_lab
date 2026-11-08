@@ -1,1 +1,0 @@
-{"id":"ai_framework_discovery","agent":"ai_framework_discovery","kinds":["dependency","architecture_document"],"adapters":["inventory","http"],"modes":["PASSIVE","ACTIVE","AUTHENTICATED"],"max_items":1000}

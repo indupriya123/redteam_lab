@@ -1,5 +1,11 @@
 # Cyrblu Independent Reconnaissance Engine
 
+The current extension adds domain selection, complete bounded OpenAPI operation
+analysis and recursive discovery, BloodHound/SBOM export intelligence, durable
+execution history, next-action proposals and JSON/HTML reports. See
+`docs/enterprise-guide.md`, `docs/repository-assessment.md` and
+`docs/completion-matrix.md` for the actual scope and remaining integrations.
+
 This service runs without `lab_redteam`, Ollama, or another engine. It owns its
 configuration, credentials, SQLite database, worker queue, 23 agent definitions,
 22 packaged skills, evidence, graph, API, console and reports. The existing
@@ -13,7 +19,7 @@ arbitrary tool commands, OS probes or operator-selected NSE scripts are implemen
 
 Copy this directory to Kali; create a fresh environment there. Do not copy a
 macOS virtual environment. Python 3.11+ and an operator-reviewed Nmap are required
-for active discovery. Passive/export processing does not need Nmap.
+for network discovery. API-only URL discovery and passive/export processing do not need Nmap.
 
 ```sh
 sudo apt install python3-venv python3-pip nmap

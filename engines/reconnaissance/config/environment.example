@@ -1,0 +1,16 @@
+RECON_CONFIG_DIR=.recon-config
+RECON_DATA_DIR=recon-data
+# Set only ranges/domains covered by written customer authorization.
+RECON_ALLOWED_CIDRS=
+RECON_ALLOWED_DOMAINS=
+RECON_DENIED_CIDRS=
+RECON_DENIED_DOMAINS=
+# Exact reviewed installed Nmap version; unnecessary for API-only assessments.
+RECON_NMAP_VERSION=
+RECON_ENABLE_UDP=0
+RECON_MAX_TARGETS=8
+RECON_BATCH_SIZE=256
+RECON_SCAN_RATE=20
+RECON_MAX_PARALLELISM=8
+RECON_COMMAND_TIMEOUT=180
+RECON_PORT_CONSOLE=1

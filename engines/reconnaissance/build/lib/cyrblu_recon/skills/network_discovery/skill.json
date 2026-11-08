@@ -1,1 +1,0 @@
-{"id":"network_discovery","agent":"network_discovery","kinds":["ip"],"adapters":["inventory","nmap"],"modes":["PASSIVE","ACTIVE","AUTHENTICATED"],"max_items":1000}

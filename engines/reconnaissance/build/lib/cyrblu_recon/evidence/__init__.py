@@ -1,1 +1,0 @@
-"""Source-bound evidence capture."""

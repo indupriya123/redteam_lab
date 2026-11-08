@@ -1,17 +1,23 @@
 import asyncio
 import logging
 import uuid
+from urllib.parse import quote
 
 import httpx
 
 from ..config.settings import Settings
 from ..database.store import Store, timestamp
 from ..intelligence.correlation import correlate, http_intelligence
+from ..intelligence.planning import build_plan
 from ..schemas.models import Assessment
 from ..skills.registry import Registry
 from ..tools.dns import resolve
 from ..tools.http import HTTPWorker, PATHS
 from ..tools.nmap import NmapWorker
+from ..tools.api_recon import APIRecon
+from ..tools.exports import ingest_exports
+from ..tools.openapi import redact
+from ..tools.scope import excluded
 
 LOG = logging.getLogger("cyrblu.recon")
 
@@ -32,8 +38,10 @@ class Engine:
             raise ValueError("Reconnaissance queue is full")
         identifier = str(uuid.uuid4())
         document = {"id": identifier, "created_at": timestamp(), "status": "queued",
-                    "spec": spec.model_dump(), "resolved_targets": [], "agent_states": {},
-                    "limitations": [], "http_requests": 0}
+                    "spec": redact(spec.model_dump()), "resolved_targets": [], "agent_states": {},
+                    "domain_states": {}, "limitations": [], "http_requests": 0}
+        for supplied in document["spec"]["documents"]:
+            supplied["content"] = "[RAW CONTENT NOT RETAINED]"
         self.store.save(document)
         self.store.event(identifier, "recon_orchestrator", "Independent engagement authorized and queued")
         self.tasks[identifier] = asyncio.create_task(self.execute(document, spec))
@@ -77,13 +85,29 @@ class Engine:
                 document["status"] = "running"
                 self.store.save(document)
                 await asyncio.gather(*(self.inventory_agent(skill, document, spec) for skill in self.registry.skills))
-                if spec.mode == "ACTIVE":
-                    await self.active(document, spec)
-                elif spec.mode == "AUTHENTICATED":
+                if "identity" in spec.domains or "supply_chain" in spec.domains:
+                    selected = [item for item in spec.documents if (item.format == "bloodhound" and "identity" in spec.domains)
+                                or (item.format in {"spdx", "cyclonedx"} and "supply_chain" in spec.domains)]
+                    ingest_exports(self.store, identifier, spec.mode, selected)
+                if spec.mode == "ACTIVE" and "network" in spec.domains:
+                    try:
+                        await self.active(document, spec)
+                        document["domain_states"]["network"] = "completed"
+                    except (ValueError, TimeoutError, httpx.HTTPError, OSError) as exc:
+                        LOG.exception("Network domain failed: %s", identifier)
+                        self.store.interrupt(identifier, "failed")
+                        document["domain_states"]["network"] = "failed"
+                        document["limitations"].append(f"Network discovery incomplete: {type(exc).__name__}: {exc}")
+                        self.store.event(identifier, "network_discovery", "Network domain failed; other authorized domains continue",
+                                         {"error": type(exc).__name__})
+                if "api" in spec.domains or "web" in spec.domains:
+                    await self.api_domain(document, spec)
+                if spec.mode == "AUTHENTICATED":
                     document["limitations"].append("Authenticated mode ingests customer-authorized exports; live cloud/Kubernetes credential connectors are not implemented.")
-                else:
+                elif spec.mode == "PASSIVE":
                     document["limitations"].append("Passive mode uses supplied intelligence; live CT/public-intelligence vendor connectors are not implemented.")
                 correlate(identifier, spec.mode, spec.relationships, self.store)
+                document["recommended_next_actions"] = build_plan(identifier, self.store, self.registry)
                 document["agent_states"]["correlation"] = {"status": "completed"}
                 document["limitations"].extend([
                     "Unknown or untested architecture is not absent architecture; no vulnerability or compromise is claimed.",
@@ -116,6 +140,8 @@ class Engine:
         self.registry.authorize("dns_intelligence", "dns_intelligence", "dns", spec.mode)
         document["agent_states"]["dns_intelligence"] = {"status": "running", "skill": "dns_intelligence"}
         targets, dns = await resolve(spec.targets, self.settings)
+        if any(excluded(target, spec.exclusions) for target in targets):
+            raise ValueError("Resolved network target is excluded")
         document["agent_states"]["dns_intelligence"] = {
             "status": "completed" if dns else "not_assessed", "skill": "dns_intelligence",
             "basis": "authorized_domain_resolution" if dns else "explicit_IP_scope_no_DNS_needed",
@@ -148,8 +174,18 @@ class Engine:
                     self.store.event(identifier, "port_discovery", "Approved batch starting", {
                         "target": target, "protocol": protocol, "port_range": [ports[0], ports[-1]],
                     })
-                    records, observation = await self.nmap.batch(target, protocol, ports, spec.fingerprint_services)
+                    execution = self.store.execution_start(identifier, "port_discovery", "full_port_discovery", "nmap",
+                                                           f"{target}:{protocol}/{ports[0]}-{ports[-1]}")
+                    try:
+                        records, observation = await self.nmap.batch(target, protocol, ports, spec.fingerprint_services)
+                    except asyncio.CancelledError:
+                        self.store.execution_finish(execution, "cancelled", error="Operator cancelled Nmap")
+                        raise
+                    except (ValueError, TimeoutError, OSError) as exc:
+                        self.store.execution_finish(execution, "failed", error=type(exc).__name__)
+                        raise
                     ref = self.store.capture(identifier, "nmap_adapter", spec.mode, observation)
+                    self.store.execution_finish(execution, "completed", [ref])
                     for record in records:
                         record["evidence_refs"] = [ref]
                     self.store.ports_batch(identifier, records)
@@ -170,7 +206,7 @@ class Engine:
                             self.store.edge(identifier, ip, port_node, "exposes", ref, False, 1)
                             self.store.edge(identifier, port_node, service, "uses", ref, not probed,
                                             record["fingerprint_confidence"])
-                            if protocol == "tcp" and record["service"] in {"http", "https", "ssl/http", "http-alt", "http-proxy"}:
+                            if "web" in spec.domains and protocol == "tcp" and record["service"] in {"http", "https", "ssl/http", "http-alt", "http-proxy"}:
                                 await self.web(document, record)
                     self.store.save(document)
                     await asyncio.sleep(0)
@@ -226,3 +262,45 @@ class Engine:
                 "url": observation["url"], "status": observation["status"],
             })
             await asyncio.sleep(0.5)
+
+    async def api_domain(self, document: dict, spec: Assessment):
+        identifier = document["id"]
+        urls = list(spec.urls)
+        if spec.mode == "ACTIVE":
+            offset = 0
+            while ports := self.store.ports(identifier, offset, 500, "open"):
+                for port in ports:
+                    if port["protocol"] == "tcp" and port["service"] in {"http", "https", "http-alt", "ssl/http"}:
+                        host = f"[{port['target']}]" if ":" in port["target"] else port["target"]
+                        scheme = "https" if port["service"] in {"https", "ssl/http"} or port.get("tunnel") == "ssl" else "http"
+                        urls.append(f"{scheme}://{host}:{port['port']}/")
+                        if len(urls) >= 16:
+                            break
+                if len(urls) >= 16:
+                    document["limitations"].append("API origin discovery capped at 16; additional HTTP services may remain unassessed.")
+                    break
+                offset += len(ports)
+        if not urls and not any(item.format == "openapi" for item in spec.documents):
+            document["domain_states"]["api"] = "not_assessed"
+            return
+        self.registry.authorize("api_discovery", "api_discovery", "http" if spec.mode == "ACTIVE" else "inventory", spec.mode)
+        recon = APIRecon(self.settings, self.store, identifier, spec.mode, urls, spec.exclusions, spec.safe_get_paths)
+        recon.max_requests = max(0, 128 - document["http_requests"])
+        for supplied in spec.documents:
+            if supplied.format == "openapi":
+                source = f"https://supplied.invalid/{quote(supplied.name, safe='/')}"
+                try:
+                    recon.supply(source, supplied.content)
+                except ValueError as exc:
+                    recon.issue(source, f"Supplied specification invalid: {exc}")
+        if spec.mode == "ACTIVE" and urls:
+            await recon.discover()
+            await recon.probe_approved_operations()
+        else:
+            recon.analyse()
+        document["api_coverage"] = recon.summary()
+        document["http_requests"] += recon.requests
+        document["domain_states"]["api"] = "completed" if recon.summary()["analysis_complete"] else "incomplete"
+        document["agent_states"]["api_discovery"].update(
+            status=document["domain_states"]["api"], basis="documented_operation_analysis_not_vulnerability_validation")
+        self.store.save(document)

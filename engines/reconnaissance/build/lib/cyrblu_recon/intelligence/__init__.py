@@ -1,1 +1,0 @@
-"""Observed and inferred intelligence."""

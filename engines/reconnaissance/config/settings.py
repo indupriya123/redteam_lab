@@ -52,6 +52,8 @@ class Settings:
     command_timeout: int = 180
     print_ports: bool = True
     max_parallelism: int = 8
+    denied_cidrs: tuple[str, ...] = ()
+    denied_domains: tuple[str, ...] = ()
     operator_digest: str = field(init=False, repr=False)
     viewer_digest: str = field(init=False, repr=False)
 
@@ -68,6 +70,8 @@ class Settings:
             network = ipaddress.ip_network(value, strict=True)
             if network.prefixlen == 0:
                 raise ValueError("Global catch-all scope is prohibited")
+        for value in self.denied_cidrs:
+            ipaddress.ip_network(value, strict=True)
         if not 1 <= self.max_targets <= 32 or not 1 <= self.batch_size <= 1024 or not 1 <= self.scan_rate <= 100:
             raise ValueError("Invalid target, batch, or rate limit")
         if not 10 <= self.command_timeout <= 600:
@@ -92,6 +96,8 @@ class Settings:
             command_timeout=int(os.environ.get("RECON_COMMAND_TIMEOUT", "180")),
             print_ports=os.environ.get("RECON_PORT_CONSOLE", "1") == "1",
             max_parallelism=int(os.environ.get("RECON_MAX_PARALLELISM", "8")),
+            denied_cidrs=tuple(filter(None, os.environ.get("RECON_DENIED_CIDRS", "").split(","))),
+            denied_domains=tuple(filter(None, os.environ.get("RECON_DENIED_DOMAINS", "").split(","))),
         )
 
     def role(self, token: str) -> str | None:
@@ -106,6 +112,8 @@ class Settings:
         address = ipaddress.ip_address(value)
         if "%" in value or address.is_link_local or address.is_unspecified or address.is_multicast:
             raise ValueError("Link-local, scoped, unspecified and multicast targets are prohibited")
+        if any(address in ipaddress.ip_network(cidr) for cidr in self.denied_cidrs):
+            raise ValueError("IP is denied by operator policy")
         if not any(address in ipaddress.ip_network(cidr) for cidr in self.allowed_cidrs):
             raise ValueError(f"IP outside operator-approved scope: {value}")
         return str(address)
@@ -114,13 +122,23 @@ class Settings:
         name = value.lower().rstrip(".")
         if not name or any(character not in "abcdefghijklmnopqrstuvwxyz0123456789-." for character in name):
             raise ValueError("Use a domain name, not a URL or arbitrary target expression")
+        if any(name == denied or name.endswith("." + denied) for denied in self.denied_domains):
+            raise ValueError("Domain is denied by operator policy")
         if not any(name == allowed or name.endswith("." + allowed) for allowed in self.allowed_domains):
             raise ValueError(f"Domain outside operator-approved scope: {value}")
         return name
 
     def validate(self, spec: Assessment) -> None:
+        from ..tools.scope import URLScope, excluded
         if not spec.approved:
             raise ValueError("Explicit engagement authorization is required")
+        if len(set(spec.domains)) != len(spec.domains):
+            raise ValueError("Duplicate domains are prohibited")
+        scope = URLScope(self, spec.urls, spec.exclusions)
+        for url in spec.urls:
+            scope.check(url)
+        if any(not path.startswith("/") or "?" in path or "#" in path for path in spec.safe_get_paths):
+            raise ValueError("Safe GET profiles require explicit paths without query or fragment")
         for item in spec.inventory:
             for key, value in item.attributes.items():
                 if len(value) > 2000 or any(secret in key.lower() for secret in ("password", "secret", "token", "credential", "api_key")):
@@ -130,11 +148,15 @@ class Settings:
                 raise ValueError("Network scan options are exclusive to ACTIVE mode")
             if spec.targets:
                 raise ValueError("PASSIVE/AUTHENTICATED inventory mode does not probe target expressions")
-            if not spec.inventory:
+            if spec.urls or spec.safe_get_paths:
+                raise ValueError("Supplied-document modes cannot execute network URLs or GET profiles")
+            if not spec.inventory and not spec.documents:
                 raise ValueError("This mode requires authorized supplied intelligence/inventory exports")
             return
-        if not spec.targets or not self.nmap_version:
+        if "network" in spec.domains and (not spec.targets or not self.nmap_version):
             raise ValueError("ACTIVE mode requires targets and RECON_NMAP_VERSION approval")
+        if not spec.targets and not spec.urls and not spec.documents:
+            raise ValueError("Active assessment requires network targets, explicit URLs or documents")
         if spec.udp and (not self.enable_udp or os.geteuid() != 0):
             raise ValueError("UDP requires enabled policy and a privileged isolated deployment")
         count = 0
@@ -145,15 +167,21 @@ class Settings:
                     raise ValueError("CIDR exceeds the bounded target limit")
                 for address in network.hosts():
                     self.ip(str(address))
+                    if excluded(str(address), spec.exclusions):
+                        raise ValueError("Target is excluded from assessment")
                     count += 1
             else:
                 try:
                     ipaddress.ip_address(value)
                 except ValueError:
                     self.domain(value)
+                    if excluded(value, spec.exclusions):
+                        raise ValueError("Target domain is excluded")
                     count += 1
                 else:
                     self.ip(value)
+                    if excluded(value, spec.exclusions):
+                        raise ValueError("Target IP is excluded")
                     count += 1
         if count > self.max_targets:
             raise ValueError("Engagement target limit exceeded")

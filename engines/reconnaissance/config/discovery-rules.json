@@ -1,0 +1,8 @@
+[
+  {"id":"api-operation-review","kind":"api_operation","skill":"api_discovery","priority":0.8,"intent":"Review documented operations; validation requires explicit non-destructive test profiles."},
+  {"id":"model-metadata-review","kind":"model_server","skill":"llm_fingerprinting","priority":0.7,"intent":"Verify advertised model metadata without invoking inference or claiming exact weights."},
+  {"id":"identity-source-review","kind":"identity","skill":"identity_discovery","priority":0.8,"intent":"Validate source-asserted memberships and privileges with separately authorized read-only identity access."},
+  {"id":"mcp-capability-review","kind":"mcp_server","skill":"mcp_discovery","priority":0.8,"intent":"Obtain authorized transport and capability metadata; do not invoke discovered tools."},
+  {"id":"a2a-card-review","kind":"a2a_service","skill":"a2a_discovery","priority":0.7,"intent":"Verify Agent Card metadata and authentication boundaries without creating tasks."},
+  {"id":"dependency-source-review","kind":"dependency","skill":"ai_supply_chain","priority":0.6,"intent":"Verify SBOM provenance and dependency versions before separate vulnerability attribution."}
+]

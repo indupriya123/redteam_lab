@@ -1,0 +1,132 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Controlled synthetic loopback fixture - not native certification - Reconnaissance</title></head><body><main><h1>Controlled synthetic loopback fixture - not native certification</h1><p>Independent reconnaissance report. Workflow completion is not security assurance.</p><pre># Cyrblu Independent Reconnaissance Report
+
+Assessment: d480ed8e-abf5-4baa-89d1-fa584b0e03a2
+Title: Controlled synthetic loopback fixture - not native certification
+Mode: ACTIVE
+Execution: completed
+Authorization reference: [REDACTED]
+
+A completed workflow is not a security pass. Supplied assertions and inferred assets are not live verification.
+
+## Complete port inventory
+
+Planned records: 0; completed: 0; incomplete: 0.
+States: {}
+Full machine-readable inventory: /api/v1/recon/assessments/d480ed8e-abf5-4baa-89d1-fa584b0e03a2/ports/export
+
+## External attack surface
+
+Not observed or not assessed; absence is not established.
+
+## Network inventory
+
+Not observed or not assessed; absence is not established.
+
+## Service inventory
+
+Not observed or not assessed; absence is not established.
+
+## Web/API inventory
+
+- http://127.0.0.1:57906/custom/openapi.json [api], confidence 0.9, observed; evidence 2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2
+
+## AI application inventory
+
+Not observed or not assessed; absence is not established.
+
+## LLM and model inventory
+
+Not observed or not assessed; absence is not established.
+
+## RAG inventory
+
+Not observed or not assessed; absence is not established.
+
+## Embedding and vector inventory
+
+Not observed or not assessed; absence is not established.
+
+## Agent inventory
+
+Not observed or not assessed; absence is not established.
+
+## MCP inventory
+
+Not observed or not assessed; absence is not established.
+
+## A2A inventory
+
+Not observed or not assessed; absence is not established.
+
+## Supply-chain inventory
+
+Not observed or not assessed; absence is not established.
+
+## Cloud and container inventory
+
+Not observed or not assessed; absence is not established.
+
+## Identity and authentication inventory
+
+Not observed or not assessed; absence is not established.
+
+## Defensive controls and telemetry
+
+Not observed or not assessed; absence is not established.
+
+## Trust boundaries
+
+Not observed or not assessed; absence is not established.
+
+## AI architecture graph
+
+Nodes: 3; observed relationships: 2; inferred relationships: 0.
+Export: /api/v1/recon/assessments/d480ed8e-abf5-4baa-89d1-fa584b0e03a2/graph
+
+## Unknown assets and confidence
+
+Inventory kinds: {&#x27;api&#x27;: 1, &#x27;api_operation&#x27;: 2}.
+Unknown service records remain in the complete port inventory. Exact model weights/versions are unverified.
+
+## Incomplete discovery and limitations
+
+- Unknown or untested architecture is not absent architecture; no vulnerability or compromise is claimed.
+- Exact model identity/version is not established by endpoint names or provider metadata.
+- Local evidence hashes are not an immutable evidence store.
+- Live RAG, vector, memory, identity, cloud and Kubernetes connectors require supplied exports or future validated adapters.
+
+## API completeness
+
+{&quot;analysis_complete&quot;: true, &quot;authentication_protected_operations&quot;: 0, &quot;declared_authentication_operations&quot;: 0, &quot;discovery_issues&quot;: 0, &quot;documented_paths&quot;: 1, &quot;execution_coverage_complete&quot;: false, &quot;failed_references&quot;: 0, &quot;operation_count_unknown&quot;: false, &quot;operations_analysed&quot;: 2, &quot;operations_pending&quot;: 0, &quot;requests&quot;: 16, &quot;specifications_discovered&quot;: 1, &quot;specifications_incomplete&quot;: 0, &quot;specifications_parsed&quot;: 1, &quot;total_operations&quot;: 2, &quot;unverified_operations&quot;: 1}
+
+## API endpoint-by-endpoint inventory
+
+- GET /metadata: analysis analysed; validation response_observed; authentication not_declared_or_optional; evidence 2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2, 5b106b42db56722bd104068bd8eef2e365ed58a1d59549dd1e0bd999179c6f71.
+- POST /metadata: analysis analysed; validation unverified; authentication not_declared_or_optional; evidence 2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2.
+
+## Recommended next steps
+
+Review authorization scope, validate supplied assertions, resolve incomplete ports and unsupported protocols, supply architecture/identity/telemetry exports, and use the signed package to plan a separately authorized assessment.
+
+- Priority 0.72: http://127.0.0.1:57906/custom/openapi.json::POST /metadata: Review documented operations; validation requires explicit non-destructive test profiles. Authorization: separate_scope_and_read_only_profile; confidence 0.9.
+- Priority 0.72: http://127.0.0.1:57906/custom/openapi.json::GET /metadata: Review documented operations; validation requires explicit non-destructive test profiles. Authorization: separate_scope_and_read_only_profile; confidence 0.9.
+
+## Evidence
+
+- 6f364d38f7f6c404f0822d285b491ec4fe8d41a39c159dbe178ff56bbd2f4d21: http://127.0.0.1:57906/ (ACTIVE)
+- e5ef4b44002db99a4ffbdb31d9b72aad09a3ef5d78828f8aa9e097c6977fc0aa: http://127.0.0.1:57906/openapi.json (ACTIVE)
+- 8de14b3f5db645581600afac0f717126df1f2e1c39e8545eb0140a69b7b3f4a5: http://127.0.0.1:57906/openapi.yaml (ACTIVE)
+- e1ef45be5d1a4a8ca6c950a46623d8b3dee1eaadf65906573f036e48a009ce91: http://127.0.0.1:57906/swagger.json (ACTIVE)
+- ad88e6a428b64e9a1c744dac3f9a337ca241069a535d0c1e0c4375bb68efe2ca: http://127.0.0.1:57906/swagger.yaml (ACTIVE)
+- c855b543dc1b94d3b57db112d8d4b7d4cce4a7d586a211d5333de15b9675247b: http://127.0.0.1:57906/api-docs (ACTIVE)
+- 74d91ccf3ba78be886b3f29866d0aa50f127257f5762fa09d8b16419aa37ef0f: http://127.0.0.1:57906/api/docs (ACTIVE)
+- 8d32d7a85f82e9885d045794e1d31da9cdefd5cd86bbff6e9d86dfc605ed543a: http://127.0.0.1:57906/swagger-ui (ACTIVE)
+- 993d80f5e4e50778be631f8625d4e84fc379b796956cc3086ca368a40f57ae61: http://127.0.0.1:57906/swagger-ui.html (ACTIVE)
+- 7666a173f1bac0c278df33c4953c0dd401962c5e6b57cdc10bc652eb9a3e8069: http://127.0.0.1:57906/v1/api-docs (ACTIVE)
+- d73d2ba2fb2dcb9e6cee30f226302b3a8c0e21119d916dd4ba363102538b261b: http://127.0.0.1:57906/v2/api-docs (ACTIVE)
+- b9c7430ee28133583d588156c7ad9eaab1ba5c1fd09fe297669adfabc997a198: http://127.0.0.1:57906/v3/api-docs (ACTIVE)
+- c47cf4698174dd5978b56a54ce96869062962a5856fca5e0d97cf40d5226f8be: http://127.0.0.1:57906/api/v1/docs (ACTIVE)
+- 735367a25412b8b48c09ec66dc96d513f0d62dc438239977344cb14e32fa833d: http://127.0.0.1:57906/api/v2/docs (ACTIVE)
+- 2149c073f7767f1fad9c876b7bf93d68c56763a2a1995bd0fd4ca10d5ba057a2: http://127.0.0.1:57906/custom/openapi.json (ACTIVE)
+- 5b106b42db56722bd104068bd8eef2e365ed58a1d59549dd1e0bd999179c6f71: http://127.0.0.1:57906/metadata (ACTIVE)
+</pre></main></body></html>

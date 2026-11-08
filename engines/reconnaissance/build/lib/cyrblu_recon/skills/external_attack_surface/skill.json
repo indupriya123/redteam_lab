@@ -1,1 +1,0 @@
-{"id":"external_attack_surface","agent":"external_attack_surface","kinds":["domain","application"],"adapters":["inventory"],"modes":["PASSIVE","ACTIVE","AUTHENTICATED"],"max_items":1000}

@@ -1,0 +1,94 @@
+{
+  "basis": "Actual HTTP requests against an owned synthetic loopback server",
+  "native_infrastructure_certification": false,
+  "native_tools_tested": [],
+  "assessment_id": "d480ed8e-abf5-4baa-89d1-fa584b0e03a2",
+  "api_coverage": {
+    "specifications_discovered": 1,
+    "specifications_parsed": 1,
+    "specifications_incomplete": 0,
+    "total_operations": 2,
+    "operations_analysed": 2,
+    "operations_pending": 0,
+    "unverified_operations": 1,
+    "authentication_protected_operations": 0,
+    "requests": 16,
+    "discovery_issues": 0,
+    "documented_paths": 1,
+    "failed_references": 0,
+    "declared_authentication_operations": 0,
+    "operation_count_unknown": false,
+    "analysis_complete": true,
+    "execution_coverage_complete": false
+  },
+  "observed_requests": [
+    {
+      "method": "GET",
+      "path": "/"
+    },
+    {
+      "method": "GET",
+      "path": "/openapi.json"
+    },
+    {
+      "method": "GET",
+      "path": "/openapi.yaml"
+    },
+    {
+      "method": "GET",
+      "path": "/swagger.json"
+    },
+    {
+      "method": "GET",
+      "path": "/swagger.yaml"
+    },
+    {
+      "method": "GET",
+      "path": "/api-docs"
+    },
+    {
+      "method": "GET",
+      "path": "/api/docs"
+    },
+    {
+      "method": "GET",
+      "path": "/swagger-ui"
+    },
+    {
+      "method": "GET",
+      "path": "/swagger-ui.html"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/api-docs"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/api-docs"
+    },
+    {
+      "method": "GET",
+      "path": "/v3/api-docs"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/docs"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/docs"
+    },
+    {
+      "method": "GET",
+      "path": "/custom/openapi.json"
+    },
+    {
+      "method": "GET",
+      "path": "/metadata"
+    }
+  ],
+  "fixture_operation_precision": 1.0,
+  "fixture_operation_recall": 1.0,
+  "validated_evidence_records": 16,
+  "state_changing_requests": 0
+}

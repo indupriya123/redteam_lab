@@ -1,1 +1,0 @@
-"""Separately permissioned reconnaissance agents."""

@@ -31,6 +31,13 @@ class Relationship(Contract):
     source_reference: str = Field(min_length=1, max_length=500)
 
 
+class SuppliedDocument(Contract):
+    format: Literal["openapi", "bloodhound", "cyclonedx", "spdx"]
+    name: str = Field(min_length=1, max_length=200)
+    source_reference: str = Field(min_length=1, max_length=500)
+    content: dict | str
+
+
 class Assessment(Contract):
     title: str = Field(min_length=1, max_length=120)
     mode: Mode = "PASSIVE"
@@ -41,6 +48,12 @@ class Assessment(Contract):
     fingerprint_services: StrictBool = False
     inventory: list[InventoryItem] = Field(default_factory=list, max_length=1000)
     relationships: list[Relationship] = Field(default_factory=list, max_length=1000)
+    domains: list[Literal["inventory", "network", "web", "api", "identity", "supply_chain"]] = Field(
+        default_factory=lambda: ["inventory", "network", "web", "api"], min_length=1, max_length=6)
+    urls: list[str] = Field(default_factory=list, max_length=16)
+    exclusions: list[str] = Field(default_factory=list, max_length=64)
+    documents: list[SuppliedDocument] = Field(default_factory=list, max_length=8)
+    safe_get_paths: list[str] = Field(default_factory=list, max_length=32)
 
 
 class IntelligencePayload(Contract):

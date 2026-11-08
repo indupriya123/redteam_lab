@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
-from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
@@ -13,8 +13,9 @@ from .config.settings import Settings
 from .database.store import MissingAssessment, Store
 from .intelligence.signing import publish
 from .orchestrator.engine import Engine
-from .reporting.report import markdown, payload, port_lines
+from .reporting.report import html_report, markdown, payload, port_lines, structured
 from .schemas.models import Assessment
+from .tools.registry import describe as describe_tools
 
 
 def create_app(settings: Settings) -> FastAPI:
@@ -90,9 +91,14 @@ def create_app(settings: Settings) -> FastAPI:
     @app.get("/api/v1/recon/capabilities", dependencies=[Depends(access)])
     def capabilities():
         return {"agents": definitions(engine.registry), "skills": engine.registry.describe(),
+                "tools": describe_tools(settings),
                 "limits": {"targets": settings.max_targets, "batch_size": settings.batch_size,
                            "scan_rate": settings.scan_rate, "max_parallelism": settings.max_parallelism, "http_requests": 128},
                 "native_scan_golden_status": "not_certified", "modes": ["PASSIVE", "ACTIVE", "AUTHENTICATED"]}
+
+    @app.get("/api/v1/recon/tools", dependencies=[Depends(access)])
+    def tools():
+        return describe_tools(settings)
 
     @app.get("/api/v1/recon/assessments", dependencies=[Depends(access)])
     def assessments():
@@ -105,6 +111,20 @@ def create_app(settings: Settings) -> FastAPI:
     @app.get("/api/v1/recon/assessments/{identifier}", dependencies=[Depends(access)])
     def assessment(identifier: str):
         return {**store.assessment(identifier), "coverage": store.coverage(identifier)}
+
+    @app.get("/api/v1/recon/assessments/{identifier}/intelligence/{category}", dependencies=[Depends(access)])
+    def records(identifier: str, category: str, offset: int = Query(0, ge=0), limit: int = Query(500, ge=1, le=1000)):
+        store.assessment(identifier)
+        if category not in {"api_specification", "api_operation", "api_server", "api_issue", "web_route",
+                            "api_route_comparison", "ad_object", "supply_chain_component", "assessment_plan"}:
+            raise HTTPException(404, "Unknown intelligence category")
+        return {"records": store.records(identifier, category, offset, limit),
+                "counts": store.record_counts(identifier, category)}
+
+    @app.get("/api/v1/recon/assessments/{identifier}/executions", dependencies=[Depends(access)])
+    def executions(identifier: str, offset: int = Query(0, ge=0), limit: int = Query(500, ge=1, le=1000)):
+        store.assessment(identifier)
+        return store.executions(identifier, offset, limit)
 
     @app.post("/api/v1/recon/assessments/{identifier}/cancel", dependencies=[Depends(operator)])
     async def cancel(identifier: str):
@@ -165,7 +185,15 @@ def create_app(settings: Settings) -> FastAPI:
         return store.graph(identifier)
 
     @app.get("/api/v1/recon/assessments/{identifier}/report", dependencies=[Depends(access)])
-    def report(identifier: str):
+    def report(identifier: str, format: str = "markdown"):
+        if format == "json":
+            return JSONResponse(structured(store, identifier))
+        if format == "html":
+            return HTMLResponse(html_report(store, identifier))
+        if format == "pdf":
+            raise HTTPException(409, "No PDF renderer is installed or integrated; use HTML/JSON/Markdown")
+        if format != "markdown":
+            raise HTTPException(400, "Supported report formats: markdown, html, json")
         return PlainTextResponse(markdown(store, identifier), media_type="text/markdown")
 
     @app.get("/api/v1/recon/assessments/{identifier}/intelligence", dependencies=[Depends(access)])
